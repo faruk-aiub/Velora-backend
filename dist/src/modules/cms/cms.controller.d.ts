@@ -8,12 +8,12 @@ export declare class CmsController {
     }>;
     getAllBannersAdmin(): Promise<{
         data: {
-            title: string;
             id: string;
-            is_active: boolean;
             created_at: Date;
             updated_at: Date;
             image_url: string;
+            title: string;
+            is_active: boolean;
             link_url: string | null;
             position: number;
         }[];
@@ -21,12 +21,12 @@ export declare class CmsController {
     createBanner(dto: CreateBannerDto): Promise<{
         message: string;
         data: {
-            title: string;
             id: string;
-            is_active: boolean;
             created_at: Date;
             updated_at: Date;
             image_url: string;
+            title: string;
+            is_active: boolean;
             link_url: string | null;
             position: number;
         };
@@ -34,12 +34,12 @@ export declare class CmsController {
     updateBanner(id: string, dto: UpdateBannerDto): Promise<{
         message: string;
         data: {
-            title: string;
             id: string;
-            is_active: boolean;
             created_at: Date;
             updated_at: Date;
             image_url: string;
+            title: string;
+            is_active: boolean;
             link_url: string | null;
             position: number;
         };

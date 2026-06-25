@@ -8,8 +8,8 @@ export declare class CartService {
         items: ({
             variant: {
                 product: {
-                    title: string;
                     slug: string;
+                    title: string;
                     images: {
                         url: string;
                     }[];

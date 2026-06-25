@@ -16,16 +16,16 @@ export declare class OrdersController {
     getUserOrders(req: Request, page: number, limit: number): Promise<import("../../common/utils/pagination.util").PaginatedResponse<any>>;
     getOrderDetails(req: Request, id: string): Promise<{
         data: {
+            id: string;
+            created_at: Date;
             items: {
                 id: string;
+                image_url: string | null;
                 sku: string;
                 price: import("@prisma/client-runtime-utils").Decimal;
-                image_url: string | null;
                 quantity: number;
                 product_name: string;
             }[];
-            id: string;
-            created_at: Date;
             status: import("@prisma/client").$Enums.OrderStatus;
             order_number: string;
             total_amount: import("@prisma/client-runtime-utils").Decimal;
@@ -36,8 +36,8 @@ export declare class OrdersController {
             };
             payments: {
                 amount: import("@prisma/client-runtime-utils").Decimal;
-                provider: import("@prisma/client").$Enums.PaymentProvider;
                 status: import("@prisma/client").$Enums.PaymentStatus;
+                provider: import("@prisma/client").$Enums.PaymentProvider;
                 transaction_id: string | null;
             }[];
             status_history: {

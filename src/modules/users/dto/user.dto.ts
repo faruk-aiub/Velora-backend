@@ -61,3 +61,13 @@ export class UpdateAddressDto {
   @IsBoolean()
   is_default?: boolean;
 }
+
+export class ChangePasswordDto {
+  @IsNotEmpty()
+  @IsString()
+  currentPassword: string;
+
+  @IsNotEmpty()
+  @IsString()
+  newPassword: string;
+}

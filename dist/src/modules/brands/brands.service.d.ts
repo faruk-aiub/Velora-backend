@@ -4,39 +4,39 @@ export declare class BrandsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     getBrands(): Promise<{
-        name: string;
         id: string;
+        name: string;
+        slug: string;
+        logo_url: string | null;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        slug: string;
-        logo_url: string | null;
     }[]>;
     createBrand(dto: CreateBrandDto): Promise<{
-        name: string;
         id: string;
+        name: string;
+        slug: string;
+        logo_url: string | null;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        slug: string;
-        logo_url: string | null;
     }>;
     updateBrand(id: string, dto: UpdateBrandDto): Promise<{
-        name: string;
         id: string;
+        name: string;
+        slug: string;
+        logo_url: string | null;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        slug: string;
-        logo_url: string | null;
     }>;
     deleteBrand(id: string): Promise<{
-        name: string;
         id: string;
+        name: string;
+        slug: string;
+        logo_url: string | null;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        slug: string;
-        logo_url: string | null;
     }>;
 }

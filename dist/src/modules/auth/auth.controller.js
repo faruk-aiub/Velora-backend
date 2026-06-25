@@ -32,14 +32,14 @@ let AuthController = class AuthController {
     async login(loginDto, request, response) {
         const ip = request.ip || request.connection.remoteAddress || 'unknown';
         const ua = request.headers['user-agent'] || 'unknown';
-        const tokens = await this.authService.login(loginDto, ip, ua);
+        const { tokens, user } = await this.authService.login(loginDto, ip, ua);
         response.cookie('refresh_token', tokens.refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
-        return { message: 'Login successful', data: { accessToken: tokens.accessToken } };
+        return { message: 'Login successful', data: { accessToken: tokens.accessToken, user } };
     }
     async logout(response) {
         response.clearCookie('refresh_token');

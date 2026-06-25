@@ -102,12 +102,12 @@ let AuthService = AuthService_1 = class AuthService {
         return true;
     }
     async login(loginDto, ipAddress, userAgent) {
-        const user = await this.prisma.user.findUnique({ where: { email: loginDto.email } });
+        const user = await this.prisma.user.findUnique({
+            where: { email: loginDto.email },
+            include: { profile: true }
+        });
         if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');
-        }
-        if (!user.is_email_verified) {
-            throw new common_1.UnauthorizedException('Please verify your email address before logging in');
         }
         if (user.locked_until && user.locked_until > new Date()) {
             throw new common_1.UnauthorizedException(`Account locked until ${user.locked_until.toISOString()}`);
@@ -135,7 +135,9 @@ let AuthService = AuthService_1 = class AuthService {
                 data: { user_id: user.id, ip_address: ipAddress, browser: userAgent }
             })
         ]);
-        return this.generateTokens(user.id, user.role);
+        const tokens = await this.generateTokens(user.id, user.role);
+        const { password_hash, verification_token, ...safeUser } = user;
+        return { tokens, user: safeUser };
     }
     async handleFailedLogin(userId, currentAttempts) {
         const attempts = currentAttempts + 1;

@@ -15,7 +15,7 @@ async function bootstrap() {
     app.setGlobalPrefix('api/v1');
     app.use((0, helmet_1.default)());
     app.enableCors({
-        origin: '*',
+        origin: true,
         credentials: true,
     });
     app.useGlobalPipes(new common_1.ValidationPipe({

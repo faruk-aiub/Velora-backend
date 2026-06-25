@@ -9,15 +9,44 @@ export declare class AuthService {
     private readonly logger;
     constructor(prisma: PrismaService, jwtService: JwtService, mailService: MailService);
     register(registerDto: RegisterDto): Promise<{
-        email: string;
         id: string;
-        role: import("@prisma/client").$Enums.Role;
         is_active: boolean;
+        email: string;
+        role: import("@prisma/client").$Enums.Role;
     }>;
     verifyEmail(dto: VerifyEmailDto): Promise<boolean>;
     login(loginDto: LoginDto, ipAddress: string, userAgent: string): Promise<{
-        accessToken: string;
-        refreshToken: string;
+        tokens: {
+            accessToken: string;
+            refreshToken: string;
+        };
+        user: {
+            profile: {
+                id: string;
+                created_at: Date;
+                updated_at: Date;
+                first_name: string;
+                last_name: string;
+                phone: string | null;
+                avatar_url: string | null;
+                user_id: string;
+            } | null;
+            id: string;
+            created_at: Date;
+            updated_at: Date;
+            deleted_at: Date | null;
+            is_active: boolean;
+            email: string;
+            provider_id: string | null;
+            reset_token: string | null;
+            auth_provider: import("@prisma/client").$Enums.AuthProvider;
+            role: import("@prisma/client").$Enums.Role;
+            is_email_verified: boolean;
+            failed_login_attempts: number;
+            locked_until: Date | null;
+            reset_token_expires: Date | null;
+            verification_expires: Date | null;
+        };
     }>;
     private handleFailedLogin;
     refreshTokens(oldRefreshToken: string): Promise<{

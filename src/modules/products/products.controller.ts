@@ -20,6 +20,8 @@ export class ProductsController {
     @Query('brand_id') brandId?: string,
     @Query('min_price') minPrice?: number,
     @Query('max_price') maxPrice?: number,
+    @Query('sort') sort?: string,
+    @Query('q') q?: string,
   ) {
     return this.productsService.findAll(
       page ? Number(page) : 1, 
@@ -27,7 +29,9 @@ export class ProductsController {
       categoryId, 
       brandId, 
       minPrice ? Number(minPrice) : undefined, 
-      maxPrice ? Number(maxPrice) : undefined
+      maxPrice ? Number(maxPrice) : undefined,
+      sort,
+      q
     );
   }
 

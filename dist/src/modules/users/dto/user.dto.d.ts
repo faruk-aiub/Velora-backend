@@ -19,3 +19,7 @@ export declare class UpdateAddressDto {
     postal_code?: string;
     is_default?: boolean;
 }
+export declare class ChangePasswordDto {
+    currentPassword: string;
+    newPassword: string;
+}

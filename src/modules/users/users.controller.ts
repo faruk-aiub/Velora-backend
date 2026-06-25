@@ -5,7 +5,7 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import type { Request } from 'express';
 import { UsersService } from './users.service';
-import { UpdateProfileDto, CreateAddressDto, UpdateAddressDto } from './dto/user.dto';
+import { UpdateProfileDto, CreateAddressDto, UpdateAddressDto, ChangePasswordDto } from './dto/user.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -26,6 +26,12 @@ export class UsersController {
     const userId = (req as any).user.sub;
     const profile = await this.usersService.updateProfile(userId, updateDto);
     return { message: 'Profile updated', data: profile };
+  }
+
+  @Put('me/password')
+  async changePassword(@Req() req: Request, @Body() dto: ChangePasswordDto) {
+    const userId = (req as any).user.sub;
+    return this.usersService.changePassword(userId, dto);
   }
 
   // --- ADDRESS APIs ---

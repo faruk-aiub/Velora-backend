@@ -11,9 +11,9 @@ export declare class InventoryController {
         data: {
             id: string;
             updated_at: Date;
-            product_variant_id: string;
             quantity: number;
             reserved_quantity: number;
+            product_variant_id: string;
         };
     }>;
     decrementStock(variantId: string, dto: UpdateStockDto): Promise<{
@@ -21,9 +21,9 @@ export declare class InventoryController {
         data: {
             id: string;
             updated_at: Date;
-            product_variant_id: string;
             quantity: number;
             reserved_quantity: number;
+            product_variant_id: string;
         };
     }>;
 }

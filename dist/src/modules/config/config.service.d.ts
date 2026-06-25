@@ -8,16 +8,16 @@ export declare class ConfigService {
     constructor(prisma: PrismaService, redisService: RedisService);
     getGlobalConfig(): Promise<any>;
     getAllAdmin(): Promise<{
-        description: string | null;
         id: string;
         updated_at: Date;
+        description: string | null;
         key: string;
         value: string;
     }[]>;
     upsertConfig(dto: UpsertConfigDto): Promise<{
-        description: string | null;
         id: string;
         updated_at: Date;
+        description: string | null;
         key: string;
         value: string;
     }>;

@@ -1,3 +1,4 @@
+// Triggering backend restart to load new Prisma client
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { RedisService } from '../../infrastructure/redis/redis.service';
@@ -24,20 +25,45 @@ export class ProductsService {
     categoryId?: string, 
     brandId?: string,
     minPrice?: number,
-    maxPrice?: number
+    maxPrice?: number,
+    sort?: string,
+    search?: string
   ): Promise<PaginatedResponse<any>> {
     const { skip, take } = getPaginationParams(page, limit);
     
     // Create deterministic cache key
-    const cacheKey = `cache:products:list:cat_${categoryId || 'all'}:br_${brandId || 'all'}:min_${minPrice || 0}:max_${maxPrice || 'inf'}:p_${page}:l_${limit}`;
+    const cacheKey = `cache:products:list:cat_${categoryId || 'all'}:br_${brandId || 'all'}:min_${minPrice || 0}:max_${maxPrice || 'inf'}:s_${sort || 'default'}:q_${search || 'none'}:p_${page}:l_${limit}`;
     
     return this.redis.getOrSet(cacheKey, 300, async () => {
+      let sortField = 'created_at';
+      let sortOrder = 'desc';
+
+      if (sort) {
+        const parts = sort.split(':');
+        if (parts.length === 2) {
+          sortField = parts[0];
+          if (sortField === 'price') sortField = 'base_price';
+          sortOrder = parts[1].toLowerCase() === 'asc' ? 'asc' : 'desc';
+        }
+      }
+
       const whereClause: any = {
         is_active: true,
         deleted_at: null,
       };
 
-      if (categoryId) whereClause.category_id = categoryId;
+      if (categoryId) {
+        whereClause.category = {
+          OR: [
+            { id: categoryId },
+            { slug: categoryId },
+            { name: categoryId },
+            { parent: { is: { id: categoryId } } },
+            { parent: { is: { slug: categoryId } } },
+            { parent: { is: { name: categoryId } } }
+          ]
+        };
+      }
       if (brandId) whereClause.brand_id = brandId;
       
       // Filter by variant price range if provided
@@ -51,30 +77,35 @@ export class ProductsService {
           }
         };
       }
+      
+      if (search) {
+        whereClause.OR = [
+          { title: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } }
+        ];
+      }
 
-      const [products, total] = await this.prisma.$transaction([
+      console.log('EXECUTING PRISMA QUERY WITH WHERE CLAUSE:', JSON.stringify(whereClause, null, 2));
+
+      const [products, total] = await Promise.all([
         this.prisma.product.findMany({
           where: whereClause,
-          skip,
-          take,
-          select: {
-            id: true,
-            title: true,
-            slug: true,
+          include: {
             variants: {
-              select: { price: true, compare_price: true },
-              take: 1
+              select: { id: true, price: true, compare_price: true },
             },
             images: {
+              where: { sort_order: 0 },
               select: { url: true, alt_text: true },
               take: 1,
-              orderBy: { sort_order: 'asc' }
             },
-            brand: { select: { name: true } }
+            brand: { select: { name: true } },
           },
-          orderBy: { created_at: 'desc' }
+          orderBy: { [sortField]: sortOrder },
+          skip,
+          take: limit,
         }),
-        this.prisma.product.count({ where: whereClause })
+        this.prisma.product.count({ where: whereClause }),
       ]);
       
       return createPaginationResponse(products, total, page, limit);

@@ -9,8 +9,8 @@ export declare class CartController {
             items: ({
                 variant: {
                     product: {
-                        title: string;
                         slug: string;
+                        title: string;
                         images: {
                             url: string;
                         }[];

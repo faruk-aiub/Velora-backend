@@ -1,30 +1,30 @@
 import type { Request } from 'express';
 import { UsersService } from './users.service';
-import { UpdateProfileDto, CreateAddressDto, UpdateAddressDto } from './dto/user.dto';
+import { UpdateProfileDto, CreateAddressDto, UpdateAddressDto, ChangePasswordDto } from './dto/user.dto';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
     getProfile(req: Request): Promise<{
         data: {
-            email: string;
             id: string;
+            email: string;
             role: import("@prisma/client").$Enums.Role;
             is_email_verified: boolean;
             profile: {
-                first_name: string;
-                last_name: string;
                 id: string;
                 created_at: Date;
                 updated_at: Date;
+                first_name: string;
+                last_name: string;
                 phone: string | null;
                 avatar_url: string | null;
                 user_id: string;
             } | null;
             addresses: {
-                type: import("@prisma/client").$Enums.AddressType;
                 id: string;
                 created_at: Date;
                 updated_at: Date;
+                type: import("@prisma/client").$Enums.AddressType;
                 user_id: string;
                 address_line1: string;
                 city: string;
@@ -36,23 +36,26 @@ export declare class UsersController {
     updateProfile(req: Request, updateDto: UpdateProfileDto): Promise<{
         message: string;
         data: {
-            first_name: string;
-            last_name: string;
             id: string;
             created_at: Date;
             updated_at: Date;
+            first_name: string;
+            last_name: string;
             phone: string | null;
             avatar_url: string | null;
             user_id: string;
         };
     }>;
+    changePassword(req: Request, dto: ChangePasswordDto): Promise<{
+        message: string;
+    }>;
     addAddress(req: Request, addressDto: CreateAddressDto): Promise<{
         message: string;
         data: {
-            type: import("@prisma/client").$Enums.AddressType;
             id: string;
             created_at: Date;
             updated_at: Date;
+            type: import("@prisma/client").$Enums.AddressType;
             user_id: string;
             address_line1: string;
             city: string;
@@ -62,10 +65,10 @@ export declare class UsersController {
     }>;
     getAddresses(req: Request): Promise<{
         data: {
-            type: import("@prisma/client").$Enums.AddressType;
             id: string;
             created_at: Date;
             updated_at: Date;
+            type: import("@prisma/client").$Enums.AddressType;
             user_id: string;
             address_line1: string;
             city: string;
@@ -76,10 +79,10 @@ export declare class UsersController {
     updateAddress(req: Request, id: string, addressDto: UpdateAddressDto): Promise<{
         message: string;
         data: {
-            type: import("@prisma/client").$Enums.AddressType;
             id: string;
             created_at: Date;
             updated_at: Date;
+            type: import("@prisma/client").$Enums.AddressType;
             user_id: string;
             address_line1: string;
             city: string;
@@ -91,11 +94,11 @@ export declare class UsersController {
         message: string;
     }>;
     getAllUsers(page?: string, limit?: string): Promise<import("../../common/utils/pagination.util").PaginatedResponse<{
-        email: string;
         id: string;
-        role: import("@prisma/client").$Enums.Role;
-        is_active: boolean;
         created_at: Date;
+        is_active: boolean;
+        email: string;
+        role: import("@prisma/client").$Enums.Role;
         profile: {
             first_name: string;
             last_name: string;
@@ -104,20 +107,20 @@ export declare class UsersController {
     getUserById(id: string): Promise<{
         data: {
             profile: {
-                first_name: string;
-                last_name: string;
                 id: string;
                 created_at: Date;
                 updated_at: Date;
+                first_name: string;
+                last_name: string;
                 phone: string | null;
                 avatar_url: string | null;
                 user_id: string;
             } | null;
             addresses: {
-                type: import("@prisma/client").$Enums.AddressType;
                 id: string;
                 created_at: Date;
                 updated_at: Date;
+                type: import("@prisma/client").$Enums.AddressType;
                 user_id: string;
                 address_line1: string;
                 city: string;
@@ -133,8 +136,12 @@ export declare class UsersController {
                 login_time: Date;
             }[];
         } & {
-            email: string;
             id: string;
+            created_at: Date;
+            updated_at: Date;
+            deleted_at: Date | null;
+            is_active: boolean;
+            email: string;
             provider_id: string | null;
             reset_token: string | null;
             verification_token: string | null;
@@ -142,10 +149,6 @@ export declare class UsersController {
             auth_provider: import("@prisma/client").$Enums.AuthProvider;
             role: import("@prisma/client").$Enums.Role;
             is_email_verified: boolean;
-            is_active: boolean;
-            created_at: Date;
-            updated_at: Date;
-            deleted_at: Date | null;
             failed_login_attempts: number;
             locked_until: Date | null;
             reset_token_expires: Date | null;

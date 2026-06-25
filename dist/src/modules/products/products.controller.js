@@ -26,8 +26,8 @@ let ProductsController = class ProductsController {
     constructor(productsService) {
         this.productsService = productsService;
     }
-    async findAll(page, limit, categoryId, brandId, minPrice, maxPrice) {
-        return this.productsService.findAll(page ? Number(page) : 1, limit ? Number(limit) : 10, categoryId, brandId, minPrice ? Number(minPrice) : undefined, maxPrice ? Number(maxPrice) : undefined);
+    async findAll(page, limit, categoryId, brandId, minPrice, maxPrice, sort, q) {
+        return this.productsService.findAll(page ? Number(page) : 1, limit ? Number(limit) : 10, categoryId, brandId, minPrice ? Number(minPrice) : undefined, maxPrice ? Number(maxPrice) : undefined, sort, q);
     }
     async findOne(slug) {
         const product = await this.productsService.findOneBySlug(slug);
@@ -74,6 +74,8 @@ __decorate([
     openapi.ApiQuery({ name: "brand_id", required: false }),
     openapi.ApiQuery({ name: "min_price", required: false }),
     openapi.ApiQuery({ name: "max_price", required: false }),
+    openapi.ApiQuery({ name: "sort", required: false }),
+    openapi.ApiQuery({ name: "q", required: false }),
     (0, common_1.Get)(),
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Query)('page')),
@@ -82,8 +84,10 @@ __decorate([
     __param(3, (0, common_1.Query)('brand_id')),
     __param(4, (0, common_1.Query)('min_price')),
     __param(5, (0, common_1.Query)('max_price')),
+    __param(6, (0, common_1.Query)('sort')),
+    __param(7, (0, common_1.Query)('q')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String, String, Number, Number]),
+    __metadata("design:paramtypes", [Number, Number, String, String, Number, Number, String, String]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "findAll", null);
 __decorate([

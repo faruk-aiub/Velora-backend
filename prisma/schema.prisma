@@ -218,6 +218,8 @@ model Product {
   brand_id    String?
   category_id String
 
+  base_price  Float   @default(0)
+
   is_active Boolean @default(true)
 
   created_at DateTime  @default(now())

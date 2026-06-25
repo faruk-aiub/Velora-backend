@@ -5,9 +5,9 @@ export declare class WishlistController {
     getWishlist(req: any): Promise<{
         data: ({
             product: {
-                title: string;
                 id: string;
                 slug: string;
+                title: string;
                 variants: {
                     price: import("@prisma/client-runtime-utils").Decimal;
                     compare_price: import("@prisma/client-runtime-utils").Decimal | null;

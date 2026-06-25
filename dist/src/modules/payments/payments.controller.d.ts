@@ -23,9 +23,9 @@ export declare class PaymentsController {
             created_at: Date;
             updated_at: Date;
             amount: import("@prisma/client-runtime-utils").Decimal;
-            provider: import("@prisma/client").$Enums.PaymentProvider;
             status: import("@prisma/client").$Enums.PaymentStatus;
             order_id: string;
+            provider: import("@prisma/client").$Enums.PaymentProvider;
             transaction_id: string | null;
             gateway_response: import("@prisma/client/runtime/client").JsonValue | null;
         };
@@ -37,9 +37,9 @@ export declare class PaymentsController {
             created_at: Date;
             updated_at: Date;
             amount: import("@prisma/client-runtime-utils").Decimal;
-            provider: import("@prisma/client").$Enums.PaymentProvider;
             status: import("@prisma/client").$Enums.PaymentStatus;
             order_id: string;
+            provider: import("@prisma/client").$Enums.PaymentProvider;
             transaction_id: string | null;
             gateway_response: import("@prisma/client/runtime/client").JsonValue | null;
         }[];

@@ -5,37 +5,37 @@ export declare class BrandsController {
     constructor(brandsService: BrandsService);
     getBrands(): Promise<{
         data: {
-            name: string;
             id: string;
+            name: string;
+            slug: string;
+            logo_url: string | null;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
-            slug: string;
-            logo_url: string | null;
         }[];
     }>;
     createBrand(createDto: CreateBrandDto): Promise<{
         message: string;
         data: {
-            name: string;
             id: string;
+            name: string;
+            slug: string;
+            logo_url: string | null;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
-            slug: string;
-            logo_url: string | null;
         };
     }>;
     updateBrand(id: string, updateDto: UpdateBrandDto): Promise<{
         message: string;
         data: {
-            name: string;
             id: string;
+            name: string;
+            slug: string;
+            logo_url: string | null;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
-            slug: string;
-            logo_url: string | null;
         };
     }>;
     deleteBrand(id: string): Promise<{

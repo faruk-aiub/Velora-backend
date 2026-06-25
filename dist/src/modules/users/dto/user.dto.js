@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateAddressDto = exports.CreateAddressDto = exports.UpdateProfileDto = void 0;
+exports.ChangePasswordDto = exports.UpdateAddressDto = exports.CreateAddressDto = exports.UpdateProfileDto = void 0;
 const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const client_1 = require("@prisma/client");
@@ -114,4 +114,22 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], UpdateAddressDto.prototype, "is_default", void 0);
+class ChangePasswordDto {
+    currentPassword;
+    newPassword;
+    static _OPENAPI_METADATA_FACTORY() {
+        return { currentPassword: { required: true, type: () => String }, newPassword: { required: true, type: () => String } };
+    }
+}
+exports.ChangePasswordDto = ChangePasswordDto;
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], ChangePasswordDto.prototype, "currentPassword", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], ChangePasswordDto.prototype, "newPassword", void 0);
 //# sourceMappingURL=user.dto.js.map

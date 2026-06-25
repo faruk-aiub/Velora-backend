@@ -15,7 +15,7 @@ async function bootstrap() {
   // Security
   app.use(helmet());
   app.enableCors({
-    origin: '*', // Adjust for production
+    origin: true, // Echoes the requesting origin (required when credentials: true)
     credentials: true,
   });
 

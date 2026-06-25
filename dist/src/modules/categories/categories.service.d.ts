@@ -6,73 +6,73 @@ export declare class CategoriesService {
     getCategoryTree(): Promise<({
         children: ({
             children: {
-                name: string;
                 id: string;
+                name: string;
+                slug: string;
                 created_at: Date;
                 updated_at: Date;
                 deleted_at: Date | null;
-                slug: string;
-                parent_id: string | null;
                 image_url: string | null;
+                parent_id: string | null;
             }[];
         } & {
-            name: string;
             id: string;
+            name: string;
+            slug: string;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
-            slug: string;
-            parent_id: string | null;
             image_url: string | null;
+            parent_id: string | null;
         })[];
     } & {
-        name: string;
         id: string;
+        name: string;
+        slug: string;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        slug: string;
-        parent_id: string | null;
         image_url: string | null;
+        parent_id: string | null;
     })[]>;
     getCategories(): Promise<{
-        name: string;
         id: string;
+        name: string;
+        slug: string;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        slug: string;
-        parent_id: string | null;
         image_url: string | null;
+        parent_id: string | null;
     }[]>;
     createCategory(dto: CreateCategoryDto): Promise<{
-        name: string;
         id: string;
+        name: string;
+        slug: string;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        slug: string;
-        parent_id: string | null;
         image_url: string | null;
+        parent_id: string | null;
     }>;
     updateCategory(id: string, dto: UpdateCategoryDto): Promise<{
-        name: string;
         id: string;
+        name: string;
+        slug: string;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        slug: string;
-        parent_id: string | null;
         image_url: string | null;
+        parent_id: string | null;
     }>;
     deleteCategory(id: string): Promise<{
-        name: string;
         id: string;
+        name: string;
+        slug: string;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        slug: string;
-        parent_id: string | null;
         image_url: string | null;
+        parent_id: string | null;
     }>;
 }

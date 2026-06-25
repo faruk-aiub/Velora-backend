@@ -5,74 +5,74 @@ export declare class CategoriesController {
     constructor(categoriesService: CategoriesService);
     getCategories(): Promise<{
         data: {
-            name: string;
             id: string;
+            name: string;
+            slug: string;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
-            slug: string;
-            parent_id: string | null;
             image_url: string | null;
+            parent_id: string | null;
         }[];
     }>;
     getCategoryTree(): Promise<{
         data: ({
             children: ({
                 children: {
-                    name: string;
                     id: string;
+                    name: string;
+                    slug: string;
                     created_at: Date;
                     updated_at: Date;
                     deleted_at: Date | null;
-                    slug: string;
-                    parent_id: string | null;
                     image_url: string | null;
+                    parent_id: string | null;
                 }[];
             } & {
-                name: string;
                 id: string;
+                name: string;
+                slug: string;
                 created_at: Date;
                 updated_at: Date;
                 deleted_at: Date | null;
-                slug: string;
-                parent_id: string | null;
                 image_url: string | null;
+                parent_id: string | null;
             })[];
         } & {
-            name: string;
             id: string;
+            name: string;
+            slug: string;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
-            slug: string;
-            parent_id: string | null;
             image_url: string | null;
+            parent_id: string | null;
         })[];
     }>;
     createCategory(createDto: CreateCategoryDto): Promise<{
         message: string;
         data: {
-            name: string;
             id: string;
+            name: string;
+            slug: string;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
-            slug: string;
-            parent_id: string | null;
             image_url: string | null;
+            parent_id: string | null;
         };
     }>;
     updateCategory(id: string, updateDto: UpdateCategoryDto): Promise<{
         message: string;
         data: {
-            name: string;
             id: string;
+            name: string;
+            slug: string;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
-            slug: string;
-            parent_id: string | null;
             image_url: string | null;
+            parent_id: string | null;
         };
     }>;
     deleteCategory(id: string): Promise<{

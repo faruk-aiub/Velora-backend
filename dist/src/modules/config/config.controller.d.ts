@@ -8,9 +8,9 @@ export declare class ConfigController {
     }>;
     getAllAdmin(): Promise<{
         data: {
-            description: string | null;
             id: string;
             updated_at: Date;
+            description: string | null;
             key: string;
             value: string;
         }[];
@@ -18,9 +18,9 @@ export declare class ConfigController {
     upsertConfig(dto: UpsertConfigDto): Promise<{
         message: string;
         data: {
-            description: string | null;
             id: string;
             updated_at: Date;
+            description: string | null;
             key: string;
             value: string;
         };

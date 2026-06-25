@@ -36,6 +36,10 @@ let UsersController = class UsersController {
         const profile = await this.usersService.updateProfile(userId, updateDto);
         return { message: 'Profile updated', data: profile };
     }
+    async changePassword(req, dto) {
+        const userId = req.user.sub;
+        return this.usersService.changePassword(userId, dto);
+    }
     async addAddress(req, addressDto) {
         const userId = req.user.sub;
         const address = await this.usersService.addAddress(userId, addressDto);
@@ -86,6 +90,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, user_dto_1.UpdateProfileDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateProfile", null);
+__decorate([
+    (0, common_1.Put)('me/password'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, user_dto_1.ChangePasswordDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "changePassword", null);
 __decorate([
     (0, common_1.Post)('address'),
     openapi.ApiResponse({ status: 201 }),

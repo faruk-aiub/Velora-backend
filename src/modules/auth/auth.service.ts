@@ -66,15 +66,18 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto, ipAddress: string, userAgent: string) {
-    const user = await this.prisma.user.findUnique({ where: { email: loginDto.email } });
+    const user = await this.prisma.user.findUnique({ 
+      where: { email: loginDto.email },
+      include: { profile: true }
+    });
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (!user.is_email_verified) {
-      throw new UnauthorizedException('Please verify your email address before logging in');
-    }
+    // if (!user.is_email_verified) {
+    //   throw new UnauthorizedException('Please verify your email address before logging in');
+    // }
 
     // Check Lock
     if (user.locked_until && user.locked_until > new Date()) {
@@ -112,7 +115,13 @@ export class AuthService {
       })
     ]);
 
-    return this.generateTokens(user.id, user.role);
+    const tokens = await this.generateTokens(user.id, user.role);
+    
+    // Omit sensitive data before returning
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password_hash, verification_token, ...safeUser } = user;
+    
+    return { tokens, user: safeUser };
   }
 
   private async handleFailedLogin(userId: string, currentAttempts: number) {

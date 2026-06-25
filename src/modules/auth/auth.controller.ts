@@ -27,7 +27,7 @@ export class AuthController {
     const ip = request.ip || request.connection.remoteAddress || 'unknown';
     const ua = request.headers['user-agent'] || 'unknown';
     
-    const tokens = await this.authService.login(loginDto, ip, ua);
+    const { tokens, user } = await this.authService.login(loginDto, ip, ua);
     
     // Set httpOnly cookie for refresh token (Security Rule)
     response.cookie('refresh_token', tokens.refreshToken, {
@@ -37,7 +37,7 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    return { message: 'Login successful', data: { accessToken: tokens.accessToken } };
+    return { message: 'Login successful', data: { accessToken: tokens.accessToken, user } };
   }
 
   @Post('logout')

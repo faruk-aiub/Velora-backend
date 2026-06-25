@@ -8,32 +8,32 @@ export declare class CmsService {
     constructor(prisma: PrismaService, redisService: RedisService);
     getActiveBanners(): Promise<any>;
     createBanner(dto: CreateBannerDto): Promise<{
-        title: string;
         id: string;
-        is_active: boolean;
         created_at: Date;
         updated_at: Date;
         image_url: string;
+        title: string;
+        is_active: boolean;
         link_url: string | null;
         position: number;
     }>;
     getAllBannersAdmin(): Promise<{
-        title: string;
         id: string;
-        is_active: boolean;
         created_at: Date;
         updated_at: Date;
         image_url: string;
+        title: string;
+        is_active: boolean;
         link_url: string | null;
         position: number;
     }[]>;
     updateBanner(id: string, dto: UpdateBannerDto): Promise<{
-        title: string;
         id: string;
-        is_active: boolean;
         created_at: Date;
         updated_at: Date;
         image_url: string;
+        title: string;
+        is_active: boolean;
         link_url: string | null;
         position: number;
     }>;

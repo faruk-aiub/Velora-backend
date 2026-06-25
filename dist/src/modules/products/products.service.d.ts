@@ -7,31 +7,31 @@ export declare class ProductsService {
     private readonly redis;
     constructor(prisma: PrismaService, redis: RedisService);
     private invalidateProductCaches;
-    findAll(page?: number, limit?: number, categoryId?: string, brandId?: string, minPrice?: number, maxPrice?: number): Promise<PaginatedResponse<any>>;
+    findAll(page?: number, limit?: number, categoryId?: string, brandId?: string, minPrice?: number, maxPrice?: number, sort?: string, search?: string): Promise<PaginatedResponse<any>>;
     findOneBySlug(slug: string): Promise<{
-        category: {
-            name: string;
-            id: string;
-            slug: string;
-        };
-        brand: {
-            name: string;
-            id: string;
-        } | null;
-        description: string | null;
-        title: string;
         id: string;
         slug: string;
+        brand: {
+            id: string;
+            name: string;
+        } | null;
+        category: {
+            id: string;
+            name: string;
+            slug: string;
+        };
+        title: string;
+        description: string | null;
         variants: {
-            inventory: {
-                quantity: number;
-                reserved_quantity: number;
-            } | null;
             id: string;
             sku: string;
             price: import("@prisma/client-runtime-utils").Decimal;
             compare_price: import("@prisma/client-runtime-utils").Decimal | null;
             attributes: import("@prisma/client/runtime/client").JsonValue;
+            inventory: {
+                quantity: number;
+                reserved_quantity: number;
+            } | null;
         }[];
         images: {
             url: string;
@@ -41,37 +41,39 @@ export declare class ProductsService {
         }[];
     }>;
     create(dto: CreateProductDto): Promise<{
-        description: string | null;
-        title: string;
         id: string;
-        is_active: boolean;
+        slug: string;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
+        title: string;
+        description: string | null;
+        base_price: number;
+        is_active: boolean;
         brand_id: string | null;
         category_id: string;
-        slug: string;
     }>;
     update(id: string, dto: UpdateProductDto): Promise<{
-        description: string | null;
-        title: string;
         id: string;
-        is_active: boolean;
+        slug: string;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
+        title: string;
+        description: string | null;
+        base_price: number;
+        is_active: boolean;
         brand_id: string | null;
         category_id: string;
-        slug: string;
     }>;
     delete(id: string): Promise<boolean>;
     addVariant(productId: string, dto: CreateVariantDto): Promise<{
         inventory: {
             id: string;
             updated_at: Date;
-            product_variant_id: string;
             quantity: number;
             reserved_quantity: number;
+            product_variant_id: string;
         } | null;
     } & {
         id: string;

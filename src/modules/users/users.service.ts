@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { UpdateProfileDto, CreateAddressDto, UpdateAddressDto } from './dto/user.dto';
+import { UpdateProfileDto, CreateAddressDto, UpdateAddressDto, ChangePasswordDto } from './dto/user.dto';
 import { getPaginationParams, createPaginationResponse } from '../../common/utils/pagination.util';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -38,6 +39,22 @@ export class UsersService {
         avatar_url: dto.avatar_url,
       }
     });
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    if (!user.password_hash) throw new UnauthorizedException('Password change not supported for this account');
+    const isMatch = await bcrypt.compare(dto.currentPassword, user.password_hash);
+    if (!isMatch) throw new UnauthorizedException('Current password is incorrect');
+
+    const newHash = await bcrypt.hash(dto.newPassword, 12);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password_hash: newHash },
+    });
+    return { message: 'Password changed successfully' };
   }
 
   // --- ADDRESS MANAGEMENT ---
