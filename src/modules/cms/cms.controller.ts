@@ -18,6 +18,7 @@ export class CmsController {
 
   // --- ADMIN APIs ---
 
+  @ApiBearerAuth()
   @Get('admin/cms/banners')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
@@ -26,6 +27,7 @@ export class CmsController {
     return { data: banners };
   }
 
+  @ApiBearerAuth()
   @Post('admin/cms/banners')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
@@ -34,6 +36,7 @@ export class CmsController {
     return { message: 'Banner created successfully', data: banner };
   }
 
+  @ApiBearerAuth()
   @Put('admin/cms/banners/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
@@ -42,6 +45,7 @@ export class CmsController {
     return { message: 'Banner updated successfully', data: banner };
   }
 
+  @ApiBearerAuth()
   @Delete('admin/cms/banners/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')

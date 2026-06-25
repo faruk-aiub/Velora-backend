@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConfigController = void 0;
 const openapi = require("@nestjs/swagger");
+const swagger_1 = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const config_service_1 = require("./config.service");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
@@ -51,6 +52,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "getGlobalConfig", null);
 __decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Get)('admin/config'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('ADMIN'),
@@ -60,6 +62,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "getAllAdmin", null);
 __decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Post)('admin/config'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('ADMIN'),
@@ -70,6 +73,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "upsertConfig", null);
 __decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Delete)('admin/config/:key'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('ADMIN'),

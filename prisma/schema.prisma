@@ -10,6 +10,11 @@ datasource db {
 // ENUMS
 // =========================
 
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}
+
 enum Role {
   ADMIN
   CUSTOMER
@@ -55,7 +60,9 @@ enum AddressType {
 model User {
   id                String  @id @default(uuid())
   email             String  @unique
-  password_hash     String
+  password_hash     String?
+  auth_provider     AuthProvider @default(LOCAL)
+  provider_id       String?      @unique
   role              Role    @default(CUSTOMER)
   is_email_verified Boolean @default(false)
   is_active         Boolean @default(true)

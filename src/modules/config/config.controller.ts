@@ -18,6 +18,7 @@ export class ConfigController {
 
   // --- ADMIN APIs ---
 
+  @ApiBearerAuth()
   @Get('admin/config')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
@@ -26,6 +27,7 @@ export class ConfigController {
     return { data: configs };
   }
 
+  @ApiBearerAuth()
   @Post('admin/config')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
@@ -34,6 +36,7 @@ export class ConfigController {
     return { message: 'Config saved successfully', data: config };
   }
 
+  @ApiBearerAuth()
   @Delete('admin/config/:key')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')

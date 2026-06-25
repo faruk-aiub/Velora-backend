@@ -32,10 +32,11 @@ let PaymentsService = class PaymentsService {
         const existingPayment = await this.prisma.payment.findFirst({
             where: { order_id: order.id, status: 'PENDING' }
         });
+        const baseUrl = process.env.BACKEND_URL || 'http://localhost:3000/api/v1';
         if (existingPayment) {
             return {
                 paymentId: existingPayment.id,
-                paymentUrl: `https://mock-\${dto.provider.toLowerCase()}-gateway.com/pay/\${existingPayment.id}`
+                paymentUrl: `${baseUrl}/payments/mock-gateway/${existingPayment.id}`
             };
         }
         const payment = await this.prisma.payment.create({
@@ -58,7 +59,7 @@ let PaymentsService = class PaymentsService {
         }
         return {
             paymentId: payment.id,
-            paymentUrl: `https://mock-\${dto.provider.toLowerCase()}-gateway.com/pay/\${payment.id}`
+            paymentUrl: `${baseUrl}/payments/mock-gateway/${payment.id}`
         };
     }
     async verifyPayment(dto) {

@@ -5,11 +5,11 @@ export declare class BrandsController {
     constructor(brandsService: BrandsService);
     getBrands(): Promise<{
         data: {
+            name: string;
             id: string;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
-            name: string;
             slug: string;
             logo_url: string | null;
         }[];
@@ -17,11 +17,11 @@ export declare class BrandsController {
     createBrand(createDto: CreateBrandDto): Promise<{
         message: string;
         data: {
+            name: string;
             id: string;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
-            name: string;
             slug: string;
             logo_url: string | null;
         };
@@ -29,11 +29,11 @@ export declare class BrandsController {
     updateBrand(id: string, updateDto: UpdateBrandDto): Promise<{
         message: string;
         data: {
+            name: string;
             id: string;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
-            name: string;
             slug: string;
             logo_url: string | null;
         };

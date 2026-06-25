@@ -22,7 +22,7 @@ export declare class AuthController {
     logout(response: Response): Promise<{
         message: string;
     }>;
-    refreshToken(request: Request): Promise<{
+    refreshToken(request: Request, response: Response): Promise<{
         message: string;
         data: {
             accessToken: string;
@@ -39,5 +39,12 @@ export declare class AuthController {
     }>;
     verifyEmail(dto: VerifyEmailDto): Promise<{
         message: string;
+    }>;
+    googleAuth(req: any): Promise<void>;
+    googleAuthRedirect(req: any, response: Response): Promise<{
+        message: string;
+        data: {
+            accessToken: string;
+        };
     }>;
 }

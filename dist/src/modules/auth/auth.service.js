@@ -49,15 +49,18 @@ const prisma_service_1 = require("../../database/prisma.service");
 const jwt_1 = require("@nestjs/jwt");
 const argon2 = __importStar(require("argon2"));
 const crypto = __importStar(require("crypto"));
+const mail_service_1 = require("../mail/mail.service");
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
 let AuthService = AuthService_1 = class AuthService {
     prisma;
     jwtService;
+    mailService;
     logger = new common_1.Logger(AuthService_1.name);
-    constructor(prisma, jwtService) {
+    constructor(prisma, jwtService, mailService) {
         this.prisma = prisma;
         this.jwtService = jwtService;
+        this.mailService = mailService;
     }
     async register(registerDto) {
         const existingUser = await this.prisma.user.findUnique({
@@ -84,7 +87,7 @@ let AuthService = AuthService_1 = class AuthService {
             },
             select: { id: true, email: true, role: true, is_active: true }
         });
-        this.logger.log(`Mock Email Sent: Verify Email Token for ${user.email} is [${verificationToken}]`);
+        await this.mailService.sendVerificationEmail(user.email, verificationToken);
         return user;
     }
     async verifyEmail(dto) {
@@ -103,11 +106,17 @@ let AuthService = AuthService_1 = class AuthService {
         if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
+        if (!user.is_email_verified) {
+            throw new common_1.UnauthorizedException('Please verify your email address before logging in');
+        }
         if (user.locked_until && user.locked_until > new Date()) {
             throw new common_1.UnauthorizedException(`Account locked until ${user.locked_until.toISOString()}`);
         }
         if (!user.is_active) {
             throw new common_1.UnauthorizedException('Account is disabled');
+        }
+        if (!user.password_hash) {
+            throw new common_1.UnauthorizedException('Please login with your social account');
         }
         const isPasswordValid = await argon2.verify(user.password_hash, loginDto.password);
         if (!isPasswordValid) {
@@ -160,6 +169,42 @@ let AuthService = AuthService_1 = class AuthService {
             throw new common_1.UnauthorizedException('Invalid refresh token');
         }
     }
+    async googleLogin(profile) {
+        if (!profile.emails || !profile.emails.length) {
+            throw new common_1.BadRequestException('Google account must have an email');
+        }
+        const email = profile.emails[0].value;
+        let user = await this.prisma.user.findUnique({ where: { email } });
+        if (!user) {
+            user = await this.prisma.user.create({
+                data: {
+                    email,
+                    auth_provider: 'GOOGLE',
+                    provider_id: profile.id,
+                    is_email_verified: true,
+                    profile: {
+                        create: {
+                            first_name: profile.name?.givenName || 'Google',
+                            last_name: profile.name?.familyName || 'User',
+                            avatar_url: profile.photos?.[0]?.value || null,
+                        }
+                    }
+                }
+            });
+        }
+        else {
+            if (!user.is_active) {
+                throw new common_1.UnauthorizedException('Account is disabled');
+            }
+            if (user.auth_provider === 'LOCAL' && !user.provider_id) {
+                await this.prisma.user.update({
+                    where: { id: user.id },
+                    data: { auth_provider: 'GOOGLE', provider_id: profile.id, is_email_verified: true }
+                });
+            }
+        }
+        return this.generateTokens(user.id, user.role);
+    }
     async generateTokens(userId, role) {
         const payload = { sub: userId, role };
         const [accessToken, refreshToken] = await Promise.all([
@@ -193,7 +238,7 @@ let AuthService = AuthService_1 = class AuthService {
             where: { id: user.id },
             data: { reset_token: hashedToken, reset_token_expires: resetExpires }
         });
-        this.logger.log(`Mock Email Sent: Password Reset Token for ${user.email} is [${resetToken}]`);
+        await this.mailService.sendPasswordResetEmail(user.email, resetToken);
         return true;
     }
     async resetPassword(dto) {
@@ -224,6 +269,7 @@ exports.AuthService = AuthService;
 exports.AuthService = AuthService = AuthService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        mail_service_1.MailService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

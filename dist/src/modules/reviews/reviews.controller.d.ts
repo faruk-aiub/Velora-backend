@@ -9,13 +9,13 @@ export declare class ReviewsController {
         message: string;
         data: {
             id: string;
-            rating: number;
-            comment: string | null;
-            is_approved: boolean;
             created_at: Date;
             updated_at: Date;
             user_id: string;
             product_id: string;
+            rating: number;
+            comment: string | null;
+            is_approved: boolean;
         };
     }>;
     getAllReviewsAdmin(page: number, limit: number): Promise<import("../../common/utils/pagination.util").PaginatedResponse<any>>;
@@ -23,13 +23,13 @@ export declare class ReviewsController {
         message: string;
         data: {
             id: string;
-            rating: number;
-            comment: string | null;
-            is_approved: boolean;
             created_at: Date;
             updated_at: Date;
             user_id: string;
             product_id: string;
+            rating: number;
+            comment: string | null;
+            is_approved: boolean;
         };
     }>;
     deleteReviewAdmin(id: string): Promise<{

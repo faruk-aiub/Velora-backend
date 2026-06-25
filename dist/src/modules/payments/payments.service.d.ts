@@ -16,25 +16,25 @@ export declare class PaymentsService {
         paymentUrl?: undefined;
     }>;
     verifyPayment(dto: VerifyPaymentDto): Promise<{
-        provider: import("@prisma/client").$Enums.PaymentProvider;
-        status: import("@prisma/client").$Enums.PaymentStatus;
         id: string;
         created_at: Date;
         updated_at: Date;
+        amount: import("@prisma/client-runtime-utils").Decimal;
+        provider: import("@prisma/client").$Enums.PaymentProvider;
+        status: import("@prisma/client").$Enums.PaymentStatus;
         order_id: string;
         transaction_id: string | null;
-        amount: import("@prisma/client-runtime-utils").Decimal;
         gateway_response: import("@prisma/client/runtime/client").JsonValue | null;
     }>;
     getPaymentDetails(orderId: string, userId: string): Promise<{
-        provider: import("@prisma/client").$Enums.PaymentProvider;
-        status: import("@prisma/client").$Enums.PaymentStatus;
         id: string;
         created_at: Date;
         updated_at: Date;
+        amount: import("@prisma/client-runtime-utils").Decimal;
+        provider: import("@prisma/client").$Enums.PaymentProvider;
+        status: import("@prisma/client").$Enums.PaymentStatus;
         order_id: string;
         transaction_id: string | null;
-        amount: import("@prisma/client-runtime-utils").Decimal;
         gateway_response: import("@prisma/client/runtime/client").JsonValue | null;
     }[]>;
     findAllAdmin(page?: number, limit?: number): Promise<PaginatedResponse<any>>;

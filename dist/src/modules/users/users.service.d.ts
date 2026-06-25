@@ -128,9 +128,11 @@ export declare class UsersService {
     } & {
         email: string;
         id: string;
+        provider_id: string | null;
         reset_token: string | null;
         verification_token: string | null;
-        password_hash: string;
+        password_hash: string | null;
+        auth_provider: import("@prisma/client").$Enums.AuthProvider;
         role: import("@prisma/client").$Enums.Role;
         is_email_verified: boolean;
         is_active: boolean;
@@ -145,9 +147,11 @@ export declare class UsersService {
     deleteUser(id: string): Promise<{
         email: string;
         id: string;
+        provider_id: string | null;
         reset_token: string | null;
         verification_token: string | null;
-        password_hash: string;
+        password_hash: string | null;
+        auth_provider: import("@prisma/client").$Enums.AuthProvider;
         role: import("@prisma/client").$Enums.Role;
         is_email_verified: boolean;
         is_active: boolean;

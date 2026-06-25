@@ -20,27 +20,28 @@ export declare class PaymentsController {
         message: string;
         data: {
             id: string;
-            order_id: string;
-            provider: import("@prisma/client").$Enums.PaymentProvider;
-            status: import("@prisma/client").$Enums.PaymentStatus;
-            transaction_id: string | null;
-            amount: import("@prisma/client-runtime-utils").Decimal;
-            gateway_response: import("@prisma/client/runtime/client").JsonValue | null;
             created_at: Date;
             updated_at: Date;
+            amount: import("@prisma/client-runtime-utils").Decimal;
+            provider: import("@prisma/client").$Enums.PaymentProvider;
+            status: import("@prisma/client").$Enums.PaymentStatus;
+            order_id: string;
+            transaction_id: string | null;
+            gateway_response: import("@prisma/client/runtime/client").JsonValue | null;
         };
     }>;
+    mockGatewayPage(paymentId: string, res: any): void;
     getPaymentDetails(orderId: string, req: Request): Promise<{
         data: {
             id: string;
-            order_id: string;
-            provider: import("@prisma/client").$Enums.PaymentProvider;
-            status: import("@prisma/client").$Enums.PaymentStatus;
-            transaction_id: string | null;
-            amount: import("@prisma/client-runtime-utils").Decimal;
-            gateway_response: import("@prisma/client/runtime/client").JsonValue | null;
             created_at: Date;
             updated_at: Date;
+            amount: import("@prisma/client-runtime-utils").Decimal;
+            provider: import("@prisma/client").$Enums.PaymentProvider;
+            status: import("@prisma/client").$Enums.PaymentStatus;
+            order_id: string;
+            transaction_id: string | null;
+            gateway_response: import("@prisma/client/runtime/client").JsonValue | null;
         }[];
     }>;
     getAllPaymentsAdmin(page: number, limit: number): Promise<import("../../common/utils/pagination.util").PaginatedResponse<any>>;

@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CmsController = void 0;
 const openapi = require("@nestjs/swagger");
+const swagger_1 = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const cms_service_1 = require("./cms.service");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
@@ -55,6 +56,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CmsController.prototype, "getActiveBanners", null);
 __decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Get)('admin/cms/banners'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('ADMIN'),
@@ -64,6 +66,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CmsController.prototype, "getAllBannersAdmin", null);
 __decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Post)('admin/cms/banners'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('ADMIN'),
@@ -74,6 +77,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CmsController.prototype, "createBanner", null);
 __decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Put)('admin/cms/banners/:id'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('ADMIN'),
@@ -85,6 +89,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CmsController.prototype, "updateBanner", null);
 __decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Delete)('admin/cms/banners/:id'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('ADMIN'),

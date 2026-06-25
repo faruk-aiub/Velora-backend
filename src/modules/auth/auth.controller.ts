@@ -3,6 +3,7 @@ import {  ApiTags, ApiOperation, ApiResponse , ApiBearerAuth } from '@nestjs/swa
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto, VerifyEmailDto } from './dto/auth.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 import type { Request, Response } from 'express';
 
 @ApiTags('Authentication')
@@ -47,13 +48,22 @@ export class AuthController {
   }
 
   @Post('refresh-token')
-  async refreshToken(@Req() request: Request) {
+  async refreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
     const refreshToken = request.cookies?.refresh_token;
     if (!refreshToken) {
       throw new Error('Refresh token not found');
     }
-    // const newTokens = await this.authService.refreshTokens(refreshToken);
-    return { message: 'Token refreshed', data: { accessToken: 'new-jwt-mock' } };
+    
+    const tokens = await this.authService.refreshTokens(refreshToken);
+    
+    response.cookie('refresh_token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return { message: 'Token refreshed', data: { accessToken: tokens.accessToken } };
   }
 
   @Get('me')
@@ -79,5 +89,29 @@ export class AuthController {
   async verifyEmail(@Body() dto: VerifyEmailDto) {
     await this.authService.verifyEmail(dto);
     return { message: 'Email verified successfully' };
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) {
+    // Initiates the Google OAuth flow
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req, @Res({ passthrough: true }) response: Response) {
+    const tokens = await this.authService.googleLogin(req.user);
+    
+    response.cookie('refresh_token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    // In a real app, you would redirect to the frontend with the access token
+    // e.g. return response.redirect(`http://localhost:3001/auth/success?token=${tokens.accessToken}`);
+    
+    return { message: 'Google login successful', data: { accessToken: tokens.accessToken } };
   }
 }

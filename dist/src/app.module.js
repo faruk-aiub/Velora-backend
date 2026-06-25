@@ -8,10 +8,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
 const core_1 = require("@nestjs/core");
 const throttler_1 = require("@nestjs/throttler");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
+const mail_module_1 = require("./modules/mail/mail.module");
 const auth_module_1 = require("./modules/auth/auth.module");
 const users_module_1 = require("./modules/users/users.module");
 const products_module_1 = require("./modules/products/products.module");
@@ -27,7 +29,10 @@ const reviews_module_1 = require("./modules/reviews/reviews.module");
 const notifications_module_1 = require("./modules/notifications/notifications.module");
 const cms_module_1 = require("./modules/cms/cms.module");
 const audit_module_1 = require("./modules/audit/audit.module");
+const serve_static_1 = require("@nestjs/serve-static");
+const path_1 = require("path");
 const config_module_1 = require("./modules/config/config.module");
+const upload_module_1 = require("./modules/upload/upload.module");
 const prisma_module_1 = require("./database/prisma.module");
 const redis_module_1 = require("./infrastructure/redis/redis.module");
 let AppModule = class AppModule {
@@ -36,13 +41,20 @@ exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            config_1.ConfigModule.forRoot({
+                isGlobal: true,
+            }),
+            serve_static_1.ServeStaticModule.forRoot({
+                rootPath: (0, path_1.join)(__dirname, '..', 'uploads'),
+                serveRoot: '/uploads',
+            }),
             throttler_1.ThrottlerModule.forRoot([{
                     ttl: 60000,
                     limit: 100,
                 }]),
             prisma_module_1.PrismaModule,
             redis_module_1.RedisModule,
-            auth_module_1.AuthModule, users_module_1.UsersModule, products_module_1.ProductsModule, categories_module_1.CategoriesModule, brands_module_1.BrandsModule, inventory_module_1.InventoryModule, cart_module_1.CartModule, wishlist_module_1.WishlistModule, orders_module_1.OrdersModule, payments_module_1.PaymentsModule, coupons_module_1.CouponsModule, reviews_module_1.ReviewsModule, notifications_module_1.NotificationsModule, cms_module_1.CmsModule, audit_module_1.AuditModule, config_module_1.AppConfigModule
+            auth_module_1.AuthModule, mail_module_1.MailModule, users_module_1.UsersModule, products_module_1.ProductsModule, categories_module_1.CategoriesModule, brands_module_1.BrandsModule, inventory_module_1.InventoryModule, cart_module_1.CartModule, wishlist_module_1.WishlistModule, orders_module_1.OrdersModule, payments_module_1.PaymentsModule, coupons_module_1.CouponsModule, reviews_module_1.ReviewsModule, notifications_module_1.NotificationsModule, cms_module_1.CmsModule, audit_module_1.AuditModule, config_module_1.AppConfigModule, upload_module_1.UploadModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [

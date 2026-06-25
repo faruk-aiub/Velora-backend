@@ -19,6 +19,7 @@ const swagger_1 = require("@nestjs/swagger");
 const auth_service_1 = require("./auth.service");
 const auth_dto_1 = require("./dto/auth.dto");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
+const passport_1 = require("@nestjs/passport");
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
@@ -44,12 +45,19 @@ let AuthController = class AuthController {
         response.clearCookie('refresh_token');
         return { message: 'Logout successful' };
     }
-    async refreshToken(request) {
+    async refreshToken(request, response) {
         const refreshToken = request.cookies?.refresh_token;
         if (!refreshToken) {
             throw new Error('Refresh token not found');
         }
-        return { message: 'Token refreshed', data: { accessToken: 'new-jwt-mock' } };
+        const tokens = await this.authService.refreshTokens(refreshToken);
+        response.cookie('refresh_token', tokens.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        return { message: 'Token refreshed', data: { accessToken: tokens.accessToken } };
     }
     async getProfile(request) {
         const user = request['user'];
@@ -66,6 +74,18 @@ let AuthController = class AuthController {
     async verifyEmail(dto) {
         await this.authService.verifyEmail(dto);
         return { message: 'Email verified successfully' };
+    }
+    async googleAuth(req) {
+    }
+    async googleAuthRedirect(req, response) {
+        const tokens = await this.authService.googleLogin(req.user);
+        response.cookie('refresh_token', tokens.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        return { message: 'Google login successful', data: { accessToken: tokens.accessToken } };
     }
 };
 exports.AuthController = AuthController;
@@ -100,8 +120,9 @@ __decorate([
     (0, common_1.Post)('refresh-token'),
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "refreshToken", null);
 __decorate([
@@ -137,6 +158,25 @@ __decorate([
     __metadata("design:paramtypes", [auth_dto_1.VerifyEmailDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "verifyEmail", null);
+__decorate([
+    (0, common_1.Get)('google'),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('google')),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "googleAuth", null);
+__decorate([
+    (0, common_1.Get)('google/callback'),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('google')),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "googleAuthRedirect", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Authentication'),
     (0, swagger_1.ApiBearerAuth)(),

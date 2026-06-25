@@ -35,6 +35,53 @@ let PaymentsController = class PaymentsController {
         const result = await this.paymentsService.verifyPayment(dto);
         return { message: 'Payment verified', data: result };
     }
+    mockGatewayPage(paymentId, res) {
+        const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Mock Payment Gateway</title>
+        <style>
+          body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f9; }
+          .container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+          button { padding: 10px 20px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin: 10px; color: white; }
+          .btn-success { background: #28a745; }
+          .btn-fail { background: #dc3545; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h2>Mock Payment Gateway</h2>
+          <p>Payment ID: <strong>${paymentId}</strong></p>
+          <p>Simulate the outcome of this payment:</p>
+          <button class="btn-success" onclick="verify('SUCCESS')">Simulate Success</button>
+          <button class="btn-fail" onclick="verify('FAILED')">Simulate Failure</button>
+        </div>
+        <script>
+          async function verify(status) {
+            const res = await fetch('/api/v1/payments/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                paymentId: '${paymentId}',
+                status: status,
+                transactionId: 'txn_' + Date.now()
+              })
+            });
+            if(res.ok) {
+              alert('Payment ' + status + '! You can close this or redirect to frontend.');
+              // Redirect to frontend (adjust port based on env)
+              window.location.href = 'http://localhost:3001/checkout/success';
+            } else {
+              alert('Verification failed');
+            }
+          }
+        </script>
+      </body>
+      </html>
+    `;
+        res.type('html').send(html);
+    }
     async getPaymentDetails(orderId, req) {
         const userId = req.user.sub;
         const data = await this.paymentsService.getPaymentDetails(orderId, userId);
@@ -64,6 +111,15 @@ __decorate([
     __metadata("design:paramtypes", [payments_dto_1.VerifyPaymentDto]),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "verifyPayment", null);
+__decorate([
+    (0, common_1.Get)('payments/mock-gateway/:id'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], PaymentsController.prototype, "mockGatewayPage", null);
 __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Get)('payments/:orderId'),
