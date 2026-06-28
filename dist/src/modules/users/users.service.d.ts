@@ -4,20 +4,14 @@ export declare class UsersService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     getProfile(userId: string): Promise<{
+        first_name: string;
+        last_name: string;
+        avatar_url: string | null;
+        phone: string | null;
         id: string;
         email: string;
         role: import("@prisma/client").$Enums.Role;
         is_email_verified: boolean;
-        profile: {
-            id: string;
-            created_at: Date;
-            updated_at: Date;
-            first_name: string;
-            last_name: string;
-            phone: string | null;
-            avatar_url: string | null;
-            user_id: string;
-        } | null;
         addresses: {
             id: string;
             created_at: Date;
@@ -122,8 +116,8 @@ export declare class UsersService {
         }[];
         login_history: {
             id: string;
-            ip_address: string | null;
             user_id: string;
+            ip_address: string | null;
             device_info: string | null;
             browser: string | null;
             login_time: Date;

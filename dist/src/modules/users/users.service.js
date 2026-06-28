@@ -66,7 +66,14 @@ let UsersService = class UsersService {
         });
         if (!user)
             throw new common_1.NotFoundException('User not found');
-        return user;
+        const { profile, ...safeUser } = user;
+        return {
+            ...safeUser,
+            first_name: profile?.first_name || '',
+            last_name: profile?.last_name || '',
+            avatar_url: profile?.avatar_url || null,
+            phone: profile?.phone || null,
+        };
     }
     async updateProfile(userId, dto) {
         return this.prisma.userProfile.upsert({

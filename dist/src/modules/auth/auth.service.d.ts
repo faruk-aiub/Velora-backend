@@ -9,6 +9,10 @@ export declare class AuthService {
     private readonly logger;
     constructor(prisma: PrismaService, jwtService: JwtService, mailService: MailService);
     register(registerDto: RegisterDto): Promise<{
+        first_name: string;
+        last_name: string;
+        avatar_url: string | null;
+        phone: string | null;
         id: string;
         is_active: boolean;
         email: string;
@@ -21,16 +25,10 @@ export declare class AuthService {
             refreshToken: string;
         };
         user: {
-            profile: {
-                id: string;
-                created_at: Date;
-                updated_at: Date;
-                first_name: string;
-                last_name: string;
-                phone: string | null;
-                avatar_url: string | null;
-                user_id: string;
-            } | null;
+            first_name: string;
+            last_name: string;
+            avatar_url: string | null;
+            phone: string | null;
             id: string;
             created_at: Date;
             updated_at: Date;

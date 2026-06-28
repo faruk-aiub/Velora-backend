@@ -85,10 +85,17 @@ let AuthService = AuthService_1 = class AuthService {
                     }
                 }
             },
-            select: { id: true, email: true, role: true, is_active: true }
+            select: { id: true, email: true, role: true, is_active: true, profile: true }
         });
         await this.mailService.sendVerificationEmail(user.email, verificationToken);
-        return user;
+        const { profile, ...safeUser } = user;
+        return {
+            ...safeUser,
+            first_name: profile?.first_name || '',
+            last_name: profile?.last_name || '',
+            avatar_url: profile?.avatar_url || null,
+            phone: profile?.phone || null,
+        };
     }
     async verifyEmail(dto) {
         const user = await this.prisma.user.findUnique({ where: { verification_token: dto.token } });
@@ -136,8 +143,17 @@ let AuthService = AuthService_1 = class AuthService {
             })
         ]);
         const tokens = await this.generateTokens(user.id, user.role);
-        const { password_hash, verification_token, ...safeUser } = user;
-        return { tokens, user: safeUser };
+        const { password_hash, verification_token, profile, ...safeUser } = user;
+        return {
+            tokens,
+            user: {
+                ...safeUser,
+                first_name: profile?.first_name || '',
+                last_name: profile?.last_name || '',
+                avatar_url: profile?.avatar_url || null,
+                phone: profile?.phone || null,
+            }
+        };
     }
     async handleFailedLogin(userId, currentAttempts) {
         const attempts = currentAttempts + 1;

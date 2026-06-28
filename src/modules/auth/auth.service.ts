@@ -45,11 +45,19 @@ export class AuthService {
           }
         }
       },
-      select: { id: true, email: true, role: true, is_active: true }
+      select: { id: true, email: true, role: true, is_active: true, profile: true }
     });
 
     await this.mailService.sendVerificationEmail(user.email, verificationToken);
-    return user;
+    
+    const { profile, ...safeUser } = user;
+    return {
+      ...safeUser,
+      first_name: profile?.first_name || '',
+      last_name: profile?.last_name || '',
+      avatar_url: profile?.avatar_url || null,
+      phone: profile?.phone || null,
+    };
   }
 
   async verifyEmail(dto: VerifyEmailDto) {
@@ -119,9 +127,18 @@ export class AuthService {
     
     // Omit sensitive data before returning
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password_hash, verification_token, ...safeUser } = user;
+    const { password_hash, verification_token, profile, ...safeUser } = user;
     
-    return { tokens, user: safeUser };
+    return { 
+      tokens, 
+      user: {
+        ...safeUser,
+        first_name: profile?.first_name || '',
+        last_name: profile?.last_name || '',
+        avatar_url: profile?.avatar_url || null,
+        phone: profile?.phone || null,
+      } 
+    };
   }
 
   private async handleFailedLogin(userId: string, currentAttempts: number) {

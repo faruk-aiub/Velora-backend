@@ -7,6 +7,10 @@ export declare class AuthController {
     register(registerDto: RegisterDto): Promise<{
         message: string;
         data: {
+            first_name: string;
+            last_name: string;
+            avatar_url: string | null;
+            phone: string | null;
             id: string;
             is_active: boolean;
             email: string;
@@ -18,16 +22,10 @@ export declare class AuthController {
         data: {
             accessToken: string;
             user: {
-                profile: {
-                    id: string;
-                    created_at: Date;
-                    updated_at: Date;
-                    first_name: string;
-                    last_name: string;
-                    phone: string | null;
-                    avatar_url: string | null;
-                    user_id: string;
-                } | null;
+                first_name: string;
+                last_name: string;
+                avatar_url: string | null;
+                phone: string | null;
                 id: string;
                 created_at: Date;
                 updated_at: Date;
