@@ -42,27 +42,27 @@ export declare class ProductsService {
     }>;
     create(dto: CreateProductDto): Promise<{
         id: string;
-        slug: string;
+        is_active: boolean;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
+        slug: string;
         title: string;
         description: string | null;
         base_price: number;
-        is_active: boolean;
         brand_id: string | null;
         category_id: string;
     }>;
     update(id: string, dto: UpdateProductDto): Promise<{
         id: string;
-        slug: string;
+        is_active: boolean;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
+        slug: string;
         title: string;
         description: string | null;
         base_price: number;
-        is_active: boolean;
         brand_id: string | null;
         category_id: string;
     }>;

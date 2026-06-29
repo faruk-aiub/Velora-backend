@@ -17,32 +17,38 @@ const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const auth_service_1 = require("./auth.service");
-const auth_dto_1 = require("./dto/auth.dto");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
-const passport_1 = require("@nestjs/passport");
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
         this.authService = authService;
     }
-    async register(registerDto) {
-        const user = await this.authService.register(registerDto);
-        return { message: 'Registration successful', data: user };
-    }
-    async login(loginDto, request, response) {
+    async firebaseLogin(idToken, request, response) {
+        if (!idToken) {
+            throw new Error('idToken is required');
+        }
         const ip = request.ip || request.connection.remoteAddress || 'unknown';
         const ua = request.headers['user-agent'] || 'unknown';
-        const { tokens, user } = await this.authService.login(loginDto, ip, ua);
+        const { tokens, user } = await this.authService.firebaseLogin(idToken, ip, ua);
         response.cookie('refresh_token', tokens.refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
-        return { message: 'Login successful', data: { accessToken: tokens.accessToken, user } };
+        if (user.role === 'ADMIN') {
+            response.cookie('admin_refresh_token', tokens.refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+            });
+        }
+        return { message: 'Authentication successful', data: { accessToken: tokens.accessToken, user } };
     }
     async logout(response) {
         response.clearCookie('refresh_token');
+        response.clearCookie('admin_refresh_token');
         return { message: 'Logout successful' };
     }
     async refreshToken(request, response) {
@@ -63,53 +69,23 @@ let AuthController = class AuthController {
         const user = request['user'];
         return { data: user };
     }
-    async forgotPassword(dto) {
-        await this.authService.forgotPassword(dto);
-        return { message: 'If the email exists, a reset link was sent' };
-    }
-    async resetPassword(dto) {
-        await this.authService.resetPassword(dto);
-        return { message: 'Password reset successfully' };
-    }
-    async verifyEmail(dto) {
-        await this.authService.verifyEmail(dto);
-        return { message: 'Email verified successfully' };
-    }
-    async googleAuth(req) {
-    }
-    async googleAuthRedirect(req, response) {
-        const tokens = await this.authService.googleLogin(req.user);
-        response.cookie('refresh_token', tokens.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
-        return { message: 'Google login successful', data: { accessToken: tokens.accessToken } };
-    }
 };
 exports.AuthController = AuthController;
 __decorate([
-    (0, common_1.Post)('register'),
+    (0, common_1.Post)('firebase/login'),
+    (0, swagger_1.ApiOperation)({ summary: 'Login or Register using Firebase idToken' }),
     openapi.ApiResponse({ status: 201 }),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [auth_dto_1.RegisterDto]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "register", null);
-__decorate([
-    (0, common_1.Post)('login'),
-    openapi.ApiResponse({ status: 201 }),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Body)('idToken')),
     __param(1, (0, common_1.Req)()),
     __param(2, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [auth_dto_1.LoginDto, Object, Object]),
+    __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", Promise)
-], AuthController.prototype, "login", null);
+], AuthController.prototype, "firebaseLogin", null);
 __decorate([
     (0, common_1.Post)('logout'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiOperation)({ summary: 'Logout and clear refresh token cookie' }),
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
@@ -118,6 +94,7 @@ __decorate([
 ], AuthController.prototype, "logout", null);
 __decorate([
     (0, common_1.Post)('refresh-token'),
+    (0, swagger_1.ApiOperation)({ summary: 'Refresh access token using refresh_token cookie' }),
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)({ passthrough: true })),
@@ -128,55 +105,13 @@ __decorate([
 __decorate([
     (0, common_1.Get)('me'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiOperation)({ summary: 'Get current user profile' }),
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getProfile", null);
-__decorate([
-    (0, common_1.Post)('forgot-password'),
-    openapi.ApiResponse({ status: 201 }),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [auth_dto_1.ForgotPasswordDto]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "forgotPassword", null);
-__decorate([
-    (0, common_1.Post)('reset-password'),
-    openapi.ApiResponse({ status: 201 }),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [auth_dto_1.ResetPasswordDto]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "resetPassword", null);
-__decorate([
-    (0, common_1.Post)('verify-email'),
-    openapi.ApiResponse({ status: 201 }),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [auth_dto_1.VerifyEmailDto]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "verifyEmail", null);
-__decorate([
-    (0, common_1.Get)('google'),
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('google')),
-    openapi.ApiResponse({ status: 200 }),
-    __param(0, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "googleAuth", null);
-__decorate([
-    (0, common_1.Get)('google/callback'),
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('google')),
-    openapi.ApiResponse({ status: 200 }),
-    __param(0, (0, common_1.Req)()),
-    __param(1, (0, common_1.Res)({ passthrough: true })),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "googleAuthRedirect", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Authentication'),
     (0, swagger_1.ApiBearerAuth)(),

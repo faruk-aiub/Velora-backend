@@ -38,4 +38,10 @@ export declare class InventoryService {
         product_variant_id: string;
     }>;
     getLowStockVariants(threshold?: number): Promise<unknown>;
+    getAllInventory(page?: number, limit?: number, search?: string): Promise<{
+        data: unknown;
+        total: any;
+        page: number;
+        limit: number;
+    }>;
 }

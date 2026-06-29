@@ -20,6 +20,19 @@ export class InventoryController {
     return { data };
   }
 
+  @Get('all')
+  async getAllInventory(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('q') q?: string,
+  ) {
+    return this.inventoryService.getAllInventory(
+      page ? Number(page) : 1,
+      limit ? Number(limit) : 10,
+      q
+    );
+  }
+
   @Post(':variantId/increment')
   async incrementStock(@Param('variantId') variantId: string, @Body() dto: UpdateStockDto) {
     const inventory = await this.inventoryService.incrementStock(variantId, dto.amount);

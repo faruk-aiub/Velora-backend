@@ -79,6 +79,10 @@ model User {
   verification_token    String?   @unique
   verification_expires  DateTime?
 
+  // 2FA Fields
+  two_factor_secret     String?
+  is_two_factor_enabled Boolean   @default(false)
+
   profile        UserProfile?
   addresses      UserAddress[]
   sessions       Session[]

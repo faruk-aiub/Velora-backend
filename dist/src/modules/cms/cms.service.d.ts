@@ -9,31 +9,31 @@ export declare class CmsService {
     getActiveBanners(): Promise<any>;
     createBanner(dto: CreateBannerDto): Promise<{
         id: string;
+        is_active: boolean;
         created_at: Date;
         updated_at: Date;
         image_url: string;
         title: string;
-        is_active: boolean;
         link_url: string | null;
         position: number;
     }>;
     getAllBannersAdmin(): Promise<{
         id: string;
+        is_active: boolean;
         created_at: Date;
         updated_at: Date;
         image_url: string;
         title: string;
-        is_active: boolean;
         link_url: string | null;
         position: number;
     }[]>;
     updateBanner(id: string, dto: UpdateBannerDto): Promise<{
         id: string;
+        is_active: boolean;
         created_at: Date;
         updated_at: Date;
         image_url: string;
         title: string;
-        is_active: boolean;
         link_url: string | null;
         position: number;
     }>;

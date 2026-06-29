@@ -1,9 +1,21 @@
+import { PrismaService } from '../../database/prisma.service';
 export declare class AdminAnalyticsController {
+    private readonly prisma;
+    constructor(prisma: PrismaService);
     getDashboard(): Promise<{
+        success: boolean;
         data: {
-            totalRevenue: number;
+            totalSales: number;
             totalOrders: number;
-            activeUsers: number;
+            totalCustomers: number;
+            totalProducts: number;
+            recentOrders: {
+                id: string;
+                customer: string;
+                date: string;
+                total: string;
+                status: import("@prisma/client").$Enums.OrderStatus;
+            }[];
         };
     }>;
     getSalesReport(): Promise<{

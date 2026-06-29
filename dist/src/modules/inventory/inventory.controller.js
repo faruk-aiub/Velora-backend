@@ -30,6 +30,9 @@ let InventoryController = class InventoryController {
         const data = await this.inventoryService.getLowStockVariants(threshold ? Number(threshold) : 5);
         return { data };
     }
+    async getAllInventory(page, limit, q) {
+        return this.inventoryService.getAllInventory(page ? Number(page) : 1, limit ? Number(limit) : 10, q);
+    }
     async incrementStock(variantId, dto) {
         const inventory = await this.inventoryService.incrementStock(variantId, dto.amount);
         return { message: 'Stock incremented', data: inventory };
@@ -49,6 +52,19 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], InventoryController.prototype, "getLowStock", null);
+__decorate([
+    openapi.ApiQuery({ name: "page", required: false }),
+    openapi.ApiQuery({ name: "limit", required: false }),
+    openapi.ApiQuery({ name: "q", required: false }),
+    (0, common_1.Get)('all'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Query)('q')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, String]),
+    __metadata("design:returntype", Promise)
+], InventoryController.prototype, "getAllInventory", null);
 __decorate([
     (0, common_1.Post)(':variantId/increment'),
     openapi.ApiResponse({ status: 201 }),

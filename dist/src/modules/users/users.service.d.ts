@@ -16,8 +16,8 @@ export declare class UsersService {
             id: string;
             created_at: Date;
             updated_at: Date;
-            type: import("@prisma/client").$Enums.AddressType;
             user_id: string;
+            type: import("@prisma/client").$Enums.AddressType;
             address_line1: string;
             city: string;
             postal_code: string;
@@ -41,8 +41,8 @@ export declare class UsersService {
         id: string;
         created_at: Date;
         updated_at: Date;
-        type: import("@prisma/client").$Enums.AddressType;
         user_id: string;
+        type: import("@prisma/client").$Enums.AddressType;
         address_line1: string;
         city: string;
         postal_code: string;
@@ -52,8 +52,8 @@ export declare class UsersService {
         id: string;
         created_at: Date;
         updated_at: Date;
-        type: import("@prisma/client").$Enums.AddressType;
         user_id: string;
+        type: import("@prisma/client").$Enums.AddressType;
         address_line1: string;
         city: string;
         postal_code: string;
@@ -63,8 +63,8 @@ export declare class UsersService {
         id: string;
         created_at: Date;
         updated_at: Date;
-        type: import("@prisma/client").$Enums.AddressType;
         user_id: string;
+        type: import("@prisma/client").$Enums.AddressType;
         address_line1: string;
         city: string;
         postal_code: string;
@@ -74,8 +74,8 @@ export declare class UsersService {
         id: string;
         created_at: Date;
         updated_at: Date;
-        type: import("@prisma/client").$Enums.AddressType;
         user_id: string;
+        type: import("@prisma/client").$Enums.AddressType;
         address_line1: string;
         city: string;
         postal_code: string;
@@ -83,10 +83,10 @@ export declare class UsersService {
     }>;
     getAllUsers(page?: number, limit?: number): Promise<import("../../common/utils/pagination.util").PaginatedResponse<{
         id: string;
-        created_at: Date;
-        is_active: boolean;
         email: string;
         role: import("@prisma/client").$Enums.Role;
+        is_active: boolean;
+        created_at: Date;
         profile: {
             first_name: string;
             last_name: string;
@@ -107,8 +107,8 @@ export declare class UsersService {
             id: string;
             created_at: Date;
             updated_at: Date;
-            type: import("@prisma/client").$Enums.AddressType;
             user_id: string;
+            type: import("@prisma/client").$Enums.AddressType;
             address_line1: string;
             city: string;
             postal_code: string;
@@ -124,40 +124,44 @@ export declare class UsersService {
         }[];
     } & {
         id: string;
+        email: string;
+        password_hash: string | null;
+        auth_provider: import("@prisma/client").$Enums.AuthProvider;
+        provider_id: string | null;
+        role: import("@prisma/client").$Enums.Role;
+        is_email_verified: boolean;
+        is_active: boolean;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        is_active: boolean;
-        email: string;
-        provider_id: string | null;
-        reset_token: string | null;
-        verification_token: string | null;
-        password_hash: string | null;
-        auth_provider: import("@prisma/client").$Enums.AuthProvider;
-        role: import("@prisma/client").$Enums.Role;
-        is_email_verified: boolean;
         failed_login_attempts: number;
         locked_until: Date | null;
+        reset_token: string | null;
         reset_token_expires: Date | null;
+        verification_token: string | null;
         verification_expires: Date | null;
+        two_factor_secret: string | null;
+        is_two_factor_enabled: boolean;
     }>;
     deleteUser(id: string): Promise<{
         id: string;
+        email: string;
+        password_hash: string | null;
+        auth_provider: import("@prisma/client").$Enums.AuthProvider;
+        provider_id: string | null;
+        role: import("@prisma/client").$Enums.Role;
+        is_email_verified: boolean;
+        is_active: boolean;
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        is_active: boolean;
-        email: string;
-        provider_id: string | null;
-        reset_token: string | null;
-        verification_token: string | null;
-        password_hash: string | null;
-        auth_provider: import("@prisma/client").$Enums.AuthProvider;
-        role: import("@prisma/client").$Enums.Role;
-        is_email_verified: boolean;
         failed_login_attempts: number;
         locked_until: Date | null;
+        reset_token: string | null;
         reset_token_expires: Date | null;
+        verification_token: string | null;
         verification_expires: Date | null;
+        two_factor_secret: string | null;
+        is_two_factor_enabled: boolean;
     }>;
 }

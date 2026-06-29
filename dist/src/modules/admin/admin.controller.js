@@ -16,9 +16,43 @@ const common_1 = require("@nestjs/common");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../../common/guards/roles.guard");
 const roles_decorator_1 = require("../../common/decorators/roles.decorator");
+const prisma_service_1 = require("../../database/prisma.service");
 let AdminAnalyticsController = class AdminAnalyticsController {
+    prisma;
+    constructor(prisma) {
+        this.prisma = prisma;
+    }
     async getDashboard() {
-        return { data: { totalRevenue: 0, totalOrders: 0, activeUsers: 0 } };
+        const totalOrders = await this.prisma.order.count();
+        const totalCustomers = await this.prisma.user.count({ where: { role: 'CUSTOMER' } });
+        const totalProducts = await this.prisma.product.count({ where: { is_active: true } });
+        const orders = await this.prisma.order.findMany({
+            select: { total_amount: true },
+            where: { status: 'DELIVERED' }
+        });
+        const totalSales = orders.reduce((sum, order) => sum + Number(order.total_amount), 0);
+        const ordersList = await this.prisma.order.findMany({
+            take: 5,
+            orderBy: { created_at: 'desc' },
+            include: { user: { select: { email: true, profile: { select: { first_name: true, last_name: true } } } } }
+        });
+        const recentOrders = ordersList.map(order => ({
+            id: order.order_number,
+            customer: order.user?.profile ? `${order.user.profile.first_name} ${order.user.profile.last_name}` : order.user.email,
+            date: order.created_at.toISOString().split('T')[0],
+            total: `$${order.total_amount.toString()}`,
+            status: order.status
+        }));
+        return {
+            success: true,
+            data: {
+                totalSales,
+                totalOrders,
+                totalCustomers,
+                totalProducts,
+                recentOrders
+            }
+        };
     }
     async getSalesReport() {
         return { data: { daily: [], weekly: [], monthly: [] } };
@@ -54,6 +88,7 @@ exports.AdminAnalyticsController = AdminAnalyticsController = __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('admin'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('ADMIN')
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], AdminAnalyticsController);
 //# sourceMappingURL=admin.controller.js.map

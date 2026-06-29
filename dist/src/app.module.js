@@ -34,6 +34,7 @@ const path_1 = require("path");
 const config_module_1 = require("./modules/config/config.module");
 const upload_module_1 = require("./modules/upload/upload.module");
 const prisma_module_1 = require("./database/prisma.module");
+const admin_module_1 = require("./modules/admin/admin.module");
 const redis_module_1 = require("./infrastructure/redis/redis.module");
 let AppModule = class AppModule {
 };
@@ -54,6 +55,7 @@ exports.AppModule = AppModule = __decorate([
                 }]),
             prisma_module_1.PrismaModule,
             redis_module_1.RedisModule,
+            admin_module_1.AdminModule,
             auth_module_1.AuthModule, mail_module_1.MailModule, users_module_1.UsersModule, products_module_1.ProductsModule, categories_module_1.CategoriesModule, brands_module_1.BrandsModule, inventory_module_1.InventoryModule, cart_module_1.CartModule, wishlist_module_1.WishlistModule, orders_module_1.OrdersModule, payments_module_1.PaymentsModule, coupons_module_1.CouponsModule, reviews_module_1.ReviewsModule, notifications_module_1.NotificationsModule, cms_module_1.CmsModule, audit_module_1.AuditModule, config_module_1.AppConfigModule, upload_module_1.UploadModule
         ],
         controllers: [app_controller_1.AppController],

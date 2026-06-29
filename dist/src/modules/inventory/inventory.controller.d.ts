@@ -6,6 +6,12 @@ export declare class InventoryController {
     getLowStock(threshold?: number): Promise<{
         data: unknown;
     }>;
+    getAllInventory(page?: number, limit?: number, q?: string): Promise<{
+        data: unknown;
+        total: any;
+        page: number;
+        limit: number;
+    }>;
     incrementStock(variantId: string, dto: UpdateStockDto): Promise<{
         message: string;
         data: {

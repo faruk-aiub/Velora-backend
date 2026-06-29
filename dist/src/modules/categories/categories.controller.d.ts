@@ -6,11 +6,11 @@ export declare class CategoriesController {
     getCategories(): Promise<{
         data: {
             id: string;
-            name: string;
-            slug: string;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
+            name: string;
+            slug: string;
             image_url: string | null;
             parent_id: string | null;
         }[];
@@ -20,31 +20,31 @@ export declare class CategoriesController {
             children: ({
                 children: {
                     id: string;
-                    name: string;
-                    slug: string;
                     created_at: Date;
                     updated_at: Date;
                     deleted_at: Date | null;
+                    name: string;
+                    slug: string;
                     image_url: string | null;
                     parent_id: string | null;
                 }[];
             } & {
                 id: string;
-                name: string;
-                slug: string;
                 created_at: Date;
                 updated_at: Date;
                 deleted_at: Date | null;
+                name: string;
+                slug: string;
                 image_url: string | null;
                 parent_id: string | null;
             })[];
         } & {
             id: string;
-            name: string;
-            slug: string;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
+            name: string;
+            slug: string;
             image_url: string | null;
             parent_id: string | null;
         })[];
@@ -53,11 +53,11 @@ export declare class CategoriesController {
         message: string;
         data: {
             id: string;
-            name: string;
-            slug: string;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
+            name: string;
+            slug: string;
             image_url: string | null;
             parent_id: string | null;
         };
@@ -66,11 +66,11 @@ export declare class CategoriesController {
         message: string;
         data: {
             id: string;
-            name: string;
-            slug: string;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
+            name: string;
+            slug: string;
             image_url: string | null;
             parent_id: string | null;
         };

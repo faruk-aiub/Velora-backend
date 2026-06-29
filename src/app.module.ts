@@ -25,6 +25,7 @@ import { join } from 'path';
 import { AppConfigModule } from './modules/config/config.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { PrismaModule } from './database/prisma.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { RedisModule } from './infrastructure/redis/redis.module';
 
 @Module({
@@ -42,6 +43,7 @@ import { RedisModule } from './infrastructure/redis/redis.module';
     }]),
     PrismaModule,
     RedisModule,
+    AdminModule,
     AuthModule, MailModule, UsersModule, ProductsModule, CategoriesModule, BrandsModule, InventoryModule, CartModule, WishlistModule, OrdersModule, PaymentsModule, CouponsModule, ReviewsModule, NotificationsModule, CmsModule, AuditModule, AppConfigModule, UploadModule
   ],
   controllers: [AppController],

@@ -9,11 +9,11 @@ export declare class CmsController {
     getAllBannersAdmin(): Promise<{
         data: {
             id: string;
+            is_active: boolean;
             created_at: Date;
             updated_at: Date;
             image_url: string;
             title: string;
-            is_active: boolean;
             link_url: string | null;
             position: number;
         }[];
@@ -22,11 +22,11 @@ export declare class CmsController {
         message: string;
         data: {
             id: string;
+            is_active: boolean;
             created_at: Date;
             updated_at: Date;
             image_url: string;
             title: string;
-            is_active: boolean;
             link_url: string | null;
             position: number;
         };
@@ -35,11 +35,11 @@ export declare class CmsController {
         message: string;
         data: {
             id: string;
+            is_active: boolean;
             created_at: Date;
             updated_at: Date;
             image_url: string;
             title: string;
-            is_active: boolean;
             link_url: string | null;
             position: number;
         };

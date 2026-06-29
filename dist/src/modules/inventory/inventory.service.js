@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.InventoryService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const client_1 = require("@prisma/client");
 let InventoryService = class InventoryService {
     prisma;
     constructor(prisma) {
@@ -95,6 +96,39 @@ let InventoryService = class InventoryService {
       AND p.is_active = true
       AND p.deleted_at IS NULL
     `;
+    }
+    async getAllInventory(page = 1, limit = 10, search) {
+        const skip = (page - 1) * limit;
+        let searchCondition = client_1.Prisma.sql ``;
+        if (search) {
+            searchCondition = client_1.Prisma.sql `AND (p.title ILIKE ${'%' + search + '%'} OR pv.sku ILIKE ${'%' + search + '%'})`;
+        }
+        const data = await this.prisma.$queryRaw `
+      SELECT i.product_variant_id, i.quantity, i.reserved_quantity, (i.quantity - i.reserved_quantity) AS available_quantity, p.title as product_title, pv.sku
+      FROM "Inventory" i
+      JOIN "ProductVariant" pv ON i.product_variant_id = pv.id
+      JOIN "Product" p ON pv.product_id = p.id
+      WHERE p.is_active = true
+      AND p.deleted_at IS NULL
+      ${searchCondition}
+      ORDER BY p.created_at DESC
+      LIMIT ${limit} OFFSET ${skip}
+    `;
+        const totalRes = await this.prisma.$queryRaw `
+      SELECT COUNT(*)::int as total
+      FROM "Inventory" i
+      JOIN "ProductVariant" pv ON i.product_variant_id = pv.id
+      JOIN "Product" p ON pv.product_id = p.id
+      WHERE p.is_active = true
+      AND p.deleted_at IS NULL
+      ${searchCondition}
+    `;
+        return {
+            data,
+            total: totalRes[0]?.total || 0,
+            page,
+            limit,
+        };
     }
 };
 exports.InventoryService = InventoryService;
