@@ -35,6 +35,12 @@ let PaymentsController = class PaymentsController {
         const result = await this.paymentsService.verifyPayment(dto);
         return { message: 'Payment verified', data: result };
     }
+    async stripeWebhook(signature, req) {
+        if (!signature || !req.rawBody) {
+            return { received: false, message: 'Missing signature or rawBody' };
+        }
+        return this.paymentsService.handleStripeWebhook(signature, req.rawBody);
+    }
     mockGatewayPage(paymentId, res) {
         const html = `
       <!DOCTYPE html>
@@ -111,6 +117,15 @@ __decorate([
     __metadata("design:paramtypes", [payments_dto_1.VerifyPaymentDto]),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "verifyPayment", null);
+__decorate([
+    (0, common_1.Post)('payments/webhook'),
+    openapi.ApiResponse({ status: 201, type: Object }),
+    __param(0, (0, common_1.Headers)('stripe-signature')),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], PaymentsController.prototype, "stripeWebhook", null);
 __decorate([
     (0, common_1.Get)('payments/mock-gateway/:id'),
     openapi.ApiResponse({ status: 200 }),

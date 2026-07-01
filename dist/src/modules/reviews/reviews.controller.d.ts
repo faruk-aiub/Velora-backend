@@ -4,6 +4,7 @@ import { CreateReviewDto, UpdateReviewStatusDto } from './dto/reviews.dto';
 export declare class ReviewsController {
     private readonly reviewsService;
     constructor(reviewsService: ReviewsService);
+    getMyReviews(req: Request, page: number, limit: number): Promise<import("../../common/utils/pagination.util").PaginatedResponse<any>>;
     getProductReviews(productId: string, page: number, limit: number): Promise<import("../../common/utils/pagination.util").PaginatedResponse<any>>;
     createReview(req: Request, dto: CreateReviewDto): Promise<{
         message: string;

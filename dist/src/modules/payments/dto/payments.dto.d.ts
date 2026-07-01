@@ -1,7 +1,8 @@
 export declare enum PaymentProviderEnum {
     BKASH = "BKASH",
     NAGAD = "NAGAD",
-    COD = "COD"
+    COD = "COD",
+    STRIPE = "STRIPE"
 }
 export declare enum PaymentStatusEnum {
     PENDING = "PENDING",

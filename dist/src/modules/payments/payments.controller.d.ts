@@ -1,3 +1,4 @@
+import type { RawBodyRequest } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import type { Request } from 'express';
 import { InitiatePaymentDto, VerifyPaymentDto } from './dto/payments.dto';
@@ -8,12 +9,12 @@ export declare class PaymentsController {
         message: string;
         data: {
             paymentId: string;
-            paymentUrl: string;
-            message?: undefined;
-        } | {
-            paymentId: string;
             message: string;
             paymentUrl?: undefined;
+        } | {
+            paymentId: string;
+            paymentUrl: string | null;
+            message?: undefined;
         };
     }>;
     verifyPayment(dto: VerifyPaymentDto): Promise<{
@@ -29,6 +30,12 @@ export declare class PaymentsController {
             transaction_id: string | null;
             gateway_response: import("@prisma/client/runtime/client").JsonValue | null;
         };
+    }>;
+    stripeWebhook(signature: string, req: RawBodyRequest<Request>): Promise<{
+        received: boolean;
+    } | {
+        received: boolean;
+        message: string;
     }>;
     mockGatewayPage(paymentId: string, res: any): void;
     getPaymentDetails(orderId: string, req: Request): Promise<{

@@ -26,6 +26,11 @@ export class CreateProductDto {
   @IsOptional()
   @IsBoolean()
   is_active?: boolean;
+
+  @ApiProperty({ example: 99.99, required: false })
+  @IsOptional()
+  @IsNumber()
+  base_price?: number;
 }
 
 export class UpdateProductDto {
@@ -48,6 +53,10 @@ export class UpdateProductDto {
   @IsOptional()
   @IsBoolean()
   is_active?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  base_price?: number;
 }
 
 export class CreateVariantDto {

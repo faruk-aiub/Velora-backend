@@ -18,6 +18,7 @@ var PaymentProviderEnum;
     PaymentProviderEnum["BKASH"] = "BKASH";
     PaymentProviderEnum["NAGAD"] = "NAGAD";
     PaymentProviderEnum["COD"] = "COD";
+    PaymentProviderEnum["STRIPE"] = "STRIPE";
 })(PaymentProviderEnum || (exports.PaymentProviderEnum = PaymentProviderEnum = {}));
 var PaymentStatusEnum;
 (function (PaymentStatusEnum) {

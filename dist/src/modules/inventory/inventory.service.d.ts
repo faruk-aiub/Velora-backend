@@ -5,37 +5,37 @@ export declare class InventoryService {
     incrementStock(variantId: string, amount: number): Promise<{
         id: string;
         updated_at: Date;
+        product_variant_id: string;
         quantity: number;
         reserved_quantity: number;
-        product_variant_id: string;
     }>;
     decrementStock(variantId: string, amount: number): Promise<{
         id: string;
         updated_at: Date;
+        product_variant_id: string;
         quantity: number;
         reserved_quantity: number;
-        product_variant_id: string;
     }>;
     reserveStock(variantId: string, amount: number): Promise<{
         id: string;
         updated_at: Date;
+        product_variant_id: string;
         quantity: number;
         reserved_quantity: number;
-        product_variant_id: string;
     }>;
     releaseReservedStock(variantId: string, amount: number): Promise<{
         id: string;
         updated_at: Date;
+        product_variant_id: string;
         quantity: number;
         reserved_quantity: number;
-        product_variant_id: string;
     }>;
     commitStock(variantId: string, amount: number): Promise<{
         id: string;
         updated_at: Date;
+        product_variant_id: string;
         quantity: number;
         reserved_quantity: number;
-        product_variant_id: string;
     }>;
     getLowStockVariants(threshold?: number): Promise<unknown>;
     getAllInventory(page?: number, limit?: number, search?: string): Promise<{

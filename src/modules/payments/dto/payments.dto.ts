@@ -4,7 +4,8 @@ import { ApiProperty } from '@nestjs/swagger';
 export enum PaymentProviderEnum {
   BKASH = 'BKASH',
   NAGAD = 'NAGAD',
-  COD = 'COD'
+  COD = 'COD',
+  STRIPE = 'STRIPE'
 }
 
 export enum PaymentStatusEnum {

@@ -12,8 +12,8 @@ export declare class CategoriesService {
                 deleted_at: Date | null;
                 name: string;
                 slug: string;
-                image_url: string | null;
                 parent_id: string | null;
+                image_url: string | null;
             }[];
         } & {
             id: string;
@@ -22,8 +22,8 @@ export declare class CategoriesService {
             deleted_at: Date | null;
             name: string;
             slug: string;
-            image_url: string | null;
             parent_id: string | null;
+            image_url: string | null;
         })[];
     } & {
         id: string;
@@ -32,8 +32,8 @@ export declare class CategoriesService {
         deleted_at: Date | null;
         name: string;
         slug: string;
-        image_url: string | null;
         parent_id: string | null;
+        image_url: string | null;
     })[]>;
     getCategories(): Promise<{
         id: string;
@@ -42,8 +42,8 @@ export declare class CategoriesService {
         deleted_at: Date | null;
         name: string;
         slug: string;
-        image_url: string | null;
         parent_id: string | null;
+        image_url: string | null;
     }[]>;
     createCategory(dto: CreateCategoryDto): Promise<{
         id: string;
@@ -52,8 +52,8 @@ export declare class CategoriesService {
         deleted_at: Date | null;
         name: string;
         slug: string;
-        image_url: string | null;
         parent_id: string | null;
+        image_url: string | null;
     }>;
     updateCategory(id: string, dto: UpdateCategoryDto): Promise<{
         id: string;
@@ -62,8 +62,8 @@ export declare class CategoriesService {
         deleted_at: Date | null;
         name: string;
         slug: string;
-        image_url: string | null;
         parent_id: string | null;
+        image_url: string | null;
     }>;
     deleteCategory(id: string): Promise<{
         id: string;
@@ -72,7 +72,7 @@ export declare class CategoriesService {
         deleted_at: Date | null;
         name: string;
         slug: string;
-        image_url: string | null;
         parent_id: string | null;
+        image_url: string | null;
     }>;
 }

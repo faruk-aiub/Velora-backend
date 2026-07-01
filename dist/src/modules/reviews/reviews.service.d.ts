@@ -15,6 +15,7 @@ export declare class ReviewsService {
         is_approved: boolean;
     }>;
     getProductReviews(productId: string, page?: number, limit?: number): Promise<PaginatedResponse<any>>;
+    getMyReviews(userId: string, page?: number, limit?: number): Promise<PaginatedResponse<any>>;
     findAllAdmin(page?: number, limit?: number): Promise<PaginatedResponse<any>>;
     updateStatus(id: string, is_approved: boolean): Promise<{
         id: string;

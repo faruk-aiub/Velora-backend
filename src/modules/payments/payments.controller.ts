@@ -1,5 +1,6 @@
 import {  ApiTags , ApiBearerAuth } from '@nestjs/swagger';
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Req, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Req, Res, Headers } from '@nestjs/common';
+import type { RawBodyRequest } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -24,10 +25,21 @@ export class PaymentsController {
 
   @Post('payments/verify')
   async verifyPayment(@Body() dto: VerifyPaymentDto) {
-    // In a real world scenario, this would be a webhook endpoint without JWT guard,
-    // relying on a gateway signature for verification.
+    // Legacy / manual verification endpoint
     const result = await this.paymentsService.verifyPayment(dto);
     return { message: 'Payment verified', data: result };
+  }
+
+  @Post('payments/webhook')
+  async stripeWebhook(
+    @Headers('stripe-signature') signature: string,
+    @Req() req: RawBodyRequest<Request>,
+  ) {
+    if (!signature || !req.rawBody) {
+      return { received: false, message: 'Missing signature or rawBody' };
+    }
+    
+    return this.paymentsService.handleStripeWebhook(signature, req.rawBody);
   }
 
   @Get('payments/mock-gateway/:id')

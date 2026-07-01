@@ -20,15 +20,43 @@ export declare class AdminAnalyticsController {
     }>;
     getSalesReport(): Promise<{
         data: {
-            daily: never[];
-            weekly: never[];
-            monthly: never[];
+            monthly: {
+                name: string;
+                total: any;
+            }[];
         };
     }>;
     getUserStats(): Promise<{
         data: {
             total: number;
             newThisMonth: number;
+        };
+    }>;
+    getAdmins(): Promise<{
+        data: {
+            id: string;
+            email: string;
+            role: import("@prisma/client").$Enums.Role;
+            is_active: boolean;
+            created_at: Date;
+            profile: {
+                id: string;
+                created_at: Date;
+                updated_at: Date;
+                first_name: string;
+                last_name: string;
+                phone: string | null;
+                avatar_url: string | null;
+                user_id: string;
+            } | null;
+        }[];
+    }>;
+    createAdmin(dto: any): Promise<{
+        message: string;
+        data: {
+            id: string;
+            email: string;
+            role: import("@prisma/client").$Enums.Role;
         };
     }>;
 }

@@ -13,6 +13,14 @@ export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @ApiBearerAuth()
+  @Get('reviews/me')
+  @UseGuards(JwtAuthGuard)
+  async getMyReviews(@Req() req: Request, @Query('page') page: number, @Query('limit') limit: number) {
+    const userId = (req as any).user.sub;
+    return this.reviewsService.getMyReviews(userId, page, limit);
+  }
+
+  @ApiBearerAuth()
   @Get('products/:productId/reviews')
   async getProductReviews(
     @Param('productId') productId: string,
@@ -28,7 +36,7 @@ export class ReviewsController {
   async createReview(@Req() req: Request, @Body() dto: CreateReviewDto) {
     const userId = (req as any).user.sub;
     const review = await this.reviewsService.createReview(userId, dto);
-    return { message: 'Review submitted and is pending approval', data: review };
+    return { message: 'Review submitted successfully', data: review };
   }
 
   // --- ADMIN APIs ---

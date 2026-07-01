@@ -28,9 +28,9 @@ let ProductsService = class ProductsService {
     async invalidateProductCaches() {
         await this.redis.delByPattern('cache:products:*');
     }
-    async findAll(page = 1, limit = 10, categoryId, brandId, minPrice, maxPrice, sort, search) {
+    async findAll(page = 1, limit = 10, categoryId, brandId, minPrice, maxPrice, sort, search, isAdmin = false) {
         const { skip, take } = (0, pagination_util_1.getPaginationParams)(page, limit);
-        const cacheKey = `cache:products:list:cat_${categoryId || 'all'}:br_${brandId || 'all'}:min_${minPrice || 0}:max_${maxPrice || 'inf'}:s_${sort || 'default'}:q_${search || 'none'}:p_${page}:l_${limit}`;
+        const cacheKey = `cache:products:list:cat_${categoryId || 'all'}:br_${brandId || 'all'}:min_${minPrice || 0}:max_${maxPrice || 'inf'}:s_${sort || 'default'}:q_${search || 'none'}:p_${page}:l_${limit}:admin_${isAdmin}`;
         return this.redis.getOrSet(cacheKey, 300, async () => {
             let sortField = 'created_at';
             let sortOrder = 'desc';
@@ -44,9 +44,11 @@ let ProductsService = class ProductsService {
                 }
             }
             const whereClause = {
-                is_active: true,
                 deleted_at: null,
             };
+            if (!isAdmin) {
+                whereClause.is_active = true;
+            }
             if (categoryId) {
                 whereClause.category = {
                     OR: [
@@ -86,7 +88,7 @@ let ProductsService = class ProductsService {
                             select: { id: true, price: true, compare_price: true },
                         },
                         images: {
-                            where: { sort_order: 0 },
+                            orderBy: { sort_order: 'asc' },
                             select: { url: true, alt_text: true },
                             take: 1,
                         },
@@ -131,6 +133,34 @@ let ProductsService = class ProductsService {
             return product;
         });
     }
+    async findOneByIdForAdmin(id) {
+        const product = await this.prisma.product.findUnique({
+            where: { id, deleted_at: null },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                description: true,
+                base_price: true,
+                category: { select: { id: true, name: true, slug: true } },
+                brand: { select: { id: true, name: true } },
+                images: { select: { id: true, url: true, alt_text: true, sort_order: true }, orderBy: { sort_order: 'asc' } },
+                variants: {
+                    select: {
+                        id: true,
+                        sku: true,
+                        price: true,
+                        compare_price: true,
+                        attributes: true,
+                        inventory: { select: { quantity: true, reserved_quantity: true } }
+                    }
+                }
+            }
+        });
+        if (!product)
+            throw new common_1.NotFoundException(`Product not found`);
+        return product;
+    }
     async create(dto) {
         const slug = (0, slugify_1.default)(dto.title, { lower: true, strict: true });
         const existing = await this.prisma.product.findUnique({ where: { slug } });
@@ -143,7 +173,20 @@ let ProductsService = class ProductsService {
                 description: dto.description,
                 category_id: dto.category_id,
                 brand_id: dto.brand_id,
+                base_price: dto.base_price !== undefined ? dto.base_price : 0,
                 is_active: dto.is_active ?? true,
+                variants: {
+                    create: {
+                        sku: `${slug}-default-${Date.now()}`,
+                        price: dto.base_price !== undefined ? dto.base_price : 0,
+                        inventory: {
+                            create: {
+                                quantity: 100,
+                                reserved_quantity: 0
+                            }
+                        }
+                    }
+                }
             }
         });
         await this.invalidateProductCaches();
@@ -168,9 +211,34 @@ let ProductsService = class ProductsService {
                 description: dto.description,
                 category_id: dto.category_id,
                 brand_id: dto.brand_id,
+                ...(dto.base_price !== undefined && { base_price: dto.base_price }),
                 is_active: dto.is_active,
             }
         });
+        if (dto.base_price !== undefined) {
+            const variants = await this.prisma.productVariant.findMany({ where: { product_id: id } });
+            if (variants.length > 0) {
+                await this.prisma.productVariant.updateMany({
+                    where: { product_id: id },
+                    data: { price: dto.base_price }
+                });
+            }
+            else {
+                await this.prisma.productVariant.create({
+                    data: {
+                        product_id: id,
+                        sku: `${slug}-default-${Date.now()}`,
+                        price: dto.base_price,
+                        inventory: {
+                            create: {
+                                quantity: 100,
+                                reserved_quantity: 0
+                            }
+                        }
+                    }
+                });
+            }
+        }
         await this.invalidateProductCaches();
         return updated;
     }

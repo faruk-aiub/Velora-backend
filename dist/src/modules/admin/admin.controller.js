@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminAnalyticsController = void 0;
 const openapi = require("@nestjs/swagger");
@@ -26,11 +29,11 @@ let AdminAnalyticsController = class AdminAnalyticsController {
         const totalOrders = await this.prisma.order.count();
         const totalCustomers = await this.prisma.user.count({ where: { role: 'CUSTOMER' } });
         const totalProducts = await this.prisma.product.count({ where: { is_active: true } });
-        const orders = await this.prisma.order.findMany({
-            select: { total_amount: true },
+        const orders = await this.prisma.order.aggregate({
+            _sum: { total_amount: true },
             where: { status: 'DELIVERED' }
         });
-        const totalSales = orders.reduce((sum, order) => sum + Number(order.total_amount), 0);
+        const totalSales = Number(orders._sum.total_amount || 0);
         const ordersList = await this.prisma.order.findMany({
             take: 5,
             orderBy: { created_at: 'desc' },
@@ -55,10 +58,73 @@ let AdminAnalyticsController = class AdminAnalyticsController {
         };
     }
     async getSalesReport() {
-        return { data: { daily: [], weekly: [], monthly: [] } };
+        const currentYear = new Date().getFullYear();
+        const startOfYear = new Date(currentYear, 0, 1);
+        const orders = await this.prisma.order.findMany({
+            where: {
+                status: 'DELIVERED',
+                created_at: { gte: startOfYear }
+            },
+            select: { total_amount: true, created_at: true }
+        });
+        const monthlySales = Array(12).fill(0);
+        orders.forEach(order => {
+            const orderDate = new Date(order.created_at);
+            if (orderDate.getFullYear() === currentYear) {
+                monthlySales[orderDate.getMonth()] += Number(order.total_amount);
+            }
+        });
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthly = monthlySales.map((total, index) => ({
+            name: months[index],
+            total: total
+        }));
+        return { data: { monthly } };
     }
     async getUserStats() {
-        return { data: { total: 0, newThisMonth: 0 } };
+        const total = await this.prisma.user.count({ where: { role: 'CUSTOMER' } });
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const newThisMonth = await this.prisma.user.count({
+            where: {
+                role: 'CUSTOMER',
+                created_at: { gte: thirtyDaysAgo }
+            }
+        });
+        return { data: { total, newThisMonth } };
+    }
+    async getAdmins() {
+        const admins = await this.prisma.user.findMany({
+            where: { role: 'ADMIN' },
+            select: {
+                id: true,
+                email: true,
+                role: true,
+                is_active: true,
+                created_at: true,
+                profile: true
+            }
+        });
+        return { data: admins };
+    }
+    async createAdmin(dto) {
+        const bcrypt = require('bcrypt');
+        const hashedPassword = await bcrypt.hash(dto.password, 10);
+        const admin = await this.prisma.user.create({
+            data: {
+                email: dto.email,
+                password_hash: hashedPassword,
+                role: 'ADMIN',
+                profile: {
+                    create: {
+                        first_name: dto.first_name,
+                        last_name: dto.last_name
+                    }
+                }
+            },
+            select: { id: true, email: true, role: true }
+        });
+        return { message: 'Admin created successfully', data: admin };
     }
 };
 exports.AdminAnalyticsController = AdminAnalyticsController;
@@ -83,6 +149,21 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AdminAnalyticsController.prototype, "getUserStats", null);
+__decorate([
+    (0, common_1.Get)('admins'),
+    openapi.ApiResponse({ status: 200 }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AdminAnalyticsController.prototype, "getAdmins", null);
+__decorate([
+    (0, common_1.Post)('admins'),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AdminAnalyticsController.prototype, "createAdmin", null);
 exports.AdminAnalyticsController = AdminAnalyticsController = __decorate([
     (0, swagger_1.ApiTags)('Admin'),
     (0, swagger_1.ApiBearerAuth)(),

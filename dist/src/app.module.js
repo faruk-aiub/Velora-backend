@@ -29,13 +29,12 @@ const reviews_module_1 = require("./modules/reviews/reviews.module");
 const notifications_module_1 = require("./modules/notifications/notifications.module");
 const cms_module_1 = require("./modules/cms/cms.module");
 const audit_module_1 = require("./modules/audit/audit.module");
-const serve_static_1 = require("@nestjs/serve-static");
-const path_1 = require("path");
 const config_module_1 = require("./modules/config/config.module");
 const upload_module_1 = require("./modules/upload/upload.module");
 const prisma_module_1 = require("./database/prisma.module");
 const admin_module_1 = require("./modules/admin/admin.module");
 const redis_module_1 = require("./infrastructure/redis/redis.module");
+const contact_module_1 = require("./modules/contact/contact.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -45,18 +44,14 @@ exports.AppModule = AppModule = __decorate([
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
             }),
-            serve_static_1.ServeStaticModule.forRoot({
-                rootPath: (0, path_1.join)(__dirname, '..', 'uploads'),
-                serveRoot: '/uploads',
-            }),
             throttler_1.ThrottlerModule.forRoot([{
                     ttl: 60000,
-                    limit: 100,
+                    limit: 60,
                 }]),
             prisma_module_1.PrismaModule,
             redis_module_1.RedisModule,
             admin_module_1.AdminModule,
-            auth_module_1.AuthModule, mail_module_1.MailModule, users_module_1.UsersModule, products_module_1.ProductsModule, categories_module_1.CategoriesModule, brands_module_1.BrandsModule, inventory_module_1.InventoryModule, cart_module_1.CartModule, wishlist_module_1.WishlistModule, orders_module_1.OrdersModule, payments_module_1.PaymentsModule, coupons_module_1.CouponsModule, reviews_module_1.ReviewsModule, notifications_module_1.NotificationsModule, cms_module_1.CmsModule, audit_module_1.AuditModule, config_module_1.AppConfigModule, upload_module_1.UploadModule
+            auth_module_1.AuthModule, mail_module_1.MailModule, users_module_1.UsersModule, products_module_1.ProductsModule, categories_module_1.CategoriesModule, brands_module_1.BrandsModule, inventory_module_1.InventoryModule, cart_module_1.CartModule, wishlist_module_1.WishlistModule, orders_module_1.OrdersModule, payments_module_1.PaymentsModule, coupons_module_1.CouponsModule, reviews_module_1.ReviewsModule, notifications_module_1.NotificationsModule, cms_module_1.CmsModule, audit_module_1.AuditModule, config_module_1.AppConfigModule, upload_module_1.UploadModule, contact_module_1.ContactModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [

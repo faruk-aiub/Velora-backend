@@ -19,8 +19,9 @@ class CreateProductDto {
     brand_id;
     category_id;
     is_active;
+    base_price;
     static _OPENAPI_METADATA_FACTORY() {
-        return { title: { required: true, type: () => String }, description: { required: false, type: () => String }, brand_id: { required: false, type: () => String }, category_id: { required: true, type: () => String }, is_active: { required: false, type: () => Boolean } };
+        return { title: { required: true, type: () => String }, description: { required: false, type: () => String }, brand_id: { required: false, type: () => String }, category_id: { required: true, type: () => String }, is_active: { required: false, type: () => Boolean }, base_price: { required: false, type: () => Number } };
     }
 }
 exports.CreateProductDto = CreateProductDto;
@@ -54,14 +55,21 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], CreateProductDto.prototype, "is_active", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 99.99, required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreateProductDto.prototype, "base_price", void 0);
 class UpdateProductDto {
     title;
     description;
     brand_id;
     category_id;
     is_active;
+    base_price;
     static _OPENAPI_METADATA_FACTORY() {
-        return { title: { required: false, type: () => String }, description: { required: false, type: () => String }, brand_id: { required: false, type: () => String }, category_id: { required: false, type: () => String }, is_active: { required: false, type: () => Boolean } };
+        return { title: { required: false, type: () => String }, description: { required: false, type: () => String }, brand_id: { required: false, type: () => String }, category_id: { required: false, type: () => String }, is_active: { required: false, type: () => Boolean }, base_price: { required: false, type: () => Number } };
     }
 }
 exports.UpdateProductDto = UpdateProductDto;
@@ -90,6 +98,11 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], UpdateProductDto.prototype, "is_active", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], UpdateProductDto.prototype, "base_price", void 0);
 class CreateVariantDto {
     sku;
     price;

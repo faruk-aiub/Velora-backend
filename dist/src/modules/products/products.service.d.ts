@@ -7,10 +7,12 @@ export declare class ProductsService {
     private readonly redis;
     constructor(prisma: PrismaService, redis: RedisService);
     private invalidateProductCaches;
-    findAll(page?: number, limit?: number, categoryId?: string, brandId?: string, minPrice?: number, maxPrice?: number, sort?: string, search?: string): Promise<PaginatedResponse<any>>;
+    findAll(page?: number, limit?: number, categoryId?: string, brandId?: string, minPrice?: number, maxPrice?: number, sort?: string, search?: string, isAdmin?: boolean): Promise<PaginatedResponse<any>>;
     findOneBySlug(slug: string): Promise<{
         id: string;
+        title: string;
         slug: string;
+        description: string | null;
         brand: {
             id: string;
             name: string;
@@ -20,18 +22,49 @@ export declare class ProductsService {
             name: string;
             slug: string;
         };
-        title: string;
-        description: string | null;
         variants: {
             id: string;
-            sku: string;
-            price: import("@prisma/client-runtime-utils").Decimal;
-            compare_price: import("@prisma/client-runtime-utils").Decimal | null;
-            attributes: import("@prisma/client/runtime/client").JsonValue;
             inventory: {
                 quantity: number;
                 reserved_quantity: number;
             } | null;
+            sku: string;
+            price: import("@prisma/client-runtime-utils").Decimal;
+            compare_price: import("@prisma/client-runtime-utils").Decimal | null;
+            attributes: import("@prisma/client/runtime/client").JsonValue;
+        }[];
+        images: {
+            url: string;
+            id: string;
+            alt_text: string | null;
+            sort_order: number;
+        }[];
+    }>;
+    findOneByIdForAdmin(id: string): Promise<{
+        id: string;
+        title: string;
+        slug: string;
+        description: string | null;
+        base_price: number;
+        brand: {
+            id: string;
+            name: string;
+        } | null;
+        category: {
+            id: string;
+            name: string;
+            slug: string;
+        };
+        variants: {
+            id: string;
+            inventory: {
+                quantity: number;
+                reserved_quantity: number;
+            } | null;
+            sku: string;
+            price: import("@prisma/client-runtime-utils").Decimal;
+            compare_price: import("@prisma/client-runtime-utils").Decimal | null;
+            attributes: import("@prisma/client/runtime/client").JsonValue;
         }[];
         images: {
             url: string;
@@ -46,12 +79,12 @@ export declare class ProductsService {
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        slug: string;
         title: string;
+        slug: string;
         description: string | null;
-        base_price: number;
         brand_id: string | null;
         category_id: string;
+        base_price: number;
     }>;
     update(id: string, dto: UpdateProductDto): Promise<{
         id: string;
@@ -59,21 +92,21 @@ export declare class ProductsService {
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        slug: string;
         title: string;
+        slug: string;
         description: string | null;
-        base_price: number;
         brand_id: string | null;
         category_id: string;
+        base_price: number;
     }>;
     delete(id: string): Promise<boolean>;
     addVariant(productId: string, dto: CreateVariantDto): Promise<{
         inventory: {
             id: string;
             updated_at: Date;
+            product_variant_id: string;
             quantity: number;
             reserved_quantity: number;
-            product_variant_id: string;
         } | null;
     } & {
         id: string;

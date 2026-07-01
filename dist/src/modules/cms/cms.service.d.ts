@@ -12,8 +12,8 @@ export declare class CmsService {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
-        image_url: string;
         title: string;
+        image_url: string;
         link_url: string | null;
         position: number;
     }>;
@@ -22,8 +22,8 @@ export declare class CmsService {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
-        image_url: string;
         title: string;
+        image_url: string;
         link_url: string | null;
         position: number;
     }[]>;
@@ -32,8 +32,8 @@ export declare class CmsService {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
-        image_url: string;
         title: string;
+        image_url: string;
         link_url: string | null;
         position: number;
     }>;

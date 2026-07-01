@@ -7,6 +7,7 @@ import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { AdminChangePasswordDto } from './dto/admin-auth.dto';
 
 @ApiTags('Admin Auth')
 @Controller('admin/auth')
@@ -45,5 +46,15 @@ export class AdminAuthController {
   async logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('admin_refresh_token');
     return { message: 'Admin logout successful' };
+  }
+
+  @Post('change-password')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Admin change password' })
+  async changePassword(@Body() changePasswordDto: AdminChangePasswordDto, @Req() request: Request) {
+    const user = request.user as any;
+    const userId = user.sub;
+    return this.adminAuthService.changePassword(userId, changePasswordDto.old_password, changePasswordDto.new_password);
   }
 }

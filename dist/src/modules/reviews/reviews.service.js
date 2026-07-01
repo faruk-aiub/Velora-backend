@@ -48,7 +48,7 @@ let ReviewsService = class ReviewsService {
                 product_id: dto.product_id,
                 rating: dto.rating,
                 comment: dto.comment,
-                is_approved: false
+                is_approved: true
             }
         });
     }
@@ -78,6 +78,20 @@ let ReviewsService = class ReviewsService {
                 total_reviews: aggregate._count.rating || 0
             }
         };
+    }
+    async getMyReviews(userId, page, limit) {
+        const { skip, take, page: currentPage, limit: currentLimit } = (0, pagination_util_1.getPaginationParams)(page, limit);
+        const [reviews, total] = await this.prisma.$transaction([
+            this.prisma.review.findMany({
+                where: { user_id: userId },
+                skip,
+                take,
+                orderBy: { created_at: 'desc' },
+                include: { product: { select: { title: true, slug: true, images: { take: 1, select: { url: true } } } } }
+            }),
+            this.prisma.review.count({ where: { user_id: userId } })
+        ]);
+        return (0, pagination_util_1.createPaginationResponse)(reviews, total, currentPage, currentLimit);
     }
     async findAllAdmin(page, limit) {
         const { skip, take, page: currentPage, limit: currentLimit } = (0, pagination_util_1.getPaginationParams)(page, limit);

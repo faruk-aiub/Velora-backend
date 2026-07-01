@@ -26,13 +26,17 @@ let ReviewsController = class ReviewsController {
     constructor(reviewsService) {
         this.reviewsService = reviewsService;
     }
+    async getMyReviews(req, page, limit) {
+        const userId = req.user.sub;
+        return this.reviewsService.getMyReviews(userId, page, limit);
+    }
     async getProductReviews(productId, page, limit) {
         return this.reviewsService.getProductReviews(productId, page, limit);
     }
     async createReview(req, dto) {
         const userId = req.user.sub;
         const review = await this.reviewsService.createReview(userId, dto);
-        return { message: 'Review submitted and is pending approval', data: review };
+        return { message: 'Review submitted successfully', data: review };
     }
     async getAllReviewsAdmin(page, limit) {
         return this.reviewsService.findAllAdmin(page, limit);
@@ -47,6 +51,18 @@ let ReviewsController = class ReviewsController {
     }
 };
 exports.ReviewsController = ReviewsController;
+__decorate([
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.Get)('reviews/me'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number, Number]),
+    __metadata("design:returntype", Promise)
+], ReviewsController.prototype, "getMyReviews", null);
 __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Get)('products/:productId/reviews'),

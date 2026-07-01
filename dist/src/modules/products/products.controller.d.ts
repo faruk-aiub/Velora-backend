@@ -7,7 +7,9 @@ export declare class ProductsController {
     findOne(slug: string): Promise<{
         data: {
             id: string;
+            title: string;
             slug: string;
+            description: string | null;
             brand: {
                 id: string;
                 name: string;
@@ -17,18 +19,52 @@ export declare class ProductsController {
                 name: string;
                 slug: string;
             };
-            title: string;
-            description: string | null;
             variants: {
                 id: string;
-                sku: string;
-                price: import("@prisma/client-runtime-utils").Decimal;
-                compare_price: import("@prisma/client-runtime-utils").Decimal | null;
-                attributes: import("@prisma/client/runtime/client").JsonValue;
                 inventory: {
                     quantity: number;
                     reserved_quantity: number;
                 } | null;
+                sku: string;
+                price: import("@prisma/client-runtime-utils").Decimal;
+                compare_price: import("@prisma/client-runtime-utils").Decimal | null;
+                attributes: import("@prisma/client/runtime/client").JsonValue;
+            }[];
+            images: {
+                url: string;
+                id: string;
+                alt_text: string | null;
+                sort_order: number;
+            }[];
+        };
+    }>;
+    adminFindAll(page?: number, limit?: number, categoryId?: string, brandId?: string, q?: string): Promise<import("../../common/utils/pagination.util").PaginatedResponse<any>>;
+    adminFindOne(id: string): Promise<{
+        data: {
+            id: string;
+            title: string;
+            slug: string;
+            description: string | null;
+            base_price: number;
+            brand: {
+                id: string;
+                name: string;
+            } | null;
+            category: {
+                id: string;
+                name: string;
+                slug: string;
+            };
+            variants: {
+                id: string;
+                inventory: {
+                    quantity: number;
+                    reserved_quantity: number;
+                } | null;
+                sku: string;
+                price: import("@prisma/client-runtime-utils").Decimal;
+                compare_price: import("@prisma/client-runtime-utils").Decimal | null;
+                attributes: import("@prisma/client/runtime/client").JsonValue;
             }[];
             images: {
                 url: string;
@@ -46,12 +82,12 @@ export declare class ProductsController {
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
-            slug: string;
             title: string;
+            slug: string;
             description: string | null;
-            base_price: number;
             brand_id: string | null;
             category_id: string;
+            base_price: number;
         };
     }>;
     update(id: string, updateDto: UpdateProductDto): Promise<{
@@ -62,12 +98,12 @@ export declare class ProductsController {
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
-            slug: string;
             title: string;
+            slug: string;
             description: string | null;
-            base_price: number;
             brand_id: string | null;
             category_id: string;
+            base_price: number;
         };
     }>;
     delete(id: string): Promise<{
@@ -79,9 +115,9 @@ export declare class ProductsController {
             inventory: {
                 id: string;
                 updated_at: Date;
+                product_variant_id: string;
                 quantity: number;
                 reserved_quantity: number;
-                product_variant_id: string;
             } | null;
         } & {
             id: string;

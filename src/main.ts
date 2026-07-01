@@ -5,22 +5,21 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import * as express from 'express';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true });
 
   // Global Prefix (Versioning Rule)
   app.setGlobalPrefix('api/v1');
 
-  // Serve static files from the uploads directory
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
-    prefix: '/uploads/',
-  });
+  // Serve static files reliably via express static (bypassing Nest router quirks)
+  app.getHttpAdapter().getInstance().use('/uploads', express.static(join(process.cwd(), 'uploads')));
 
   // Security
-  app.use(helmet());
+  app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
   app.enableCors({
     origin: true, // Echoes the requesting origin (required when credentials: true)
     credentials: true,

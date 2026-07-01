@@ -68,4 +68,33 @@ export class AdminAuthService {
       user: userWithoutPassword,
     };
   }
+
+  async changePassword(userId: string, oldPassword: string, newPassword: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Invalid user');
+    }
+
+    if (!user.password_hash) {
+      throw new UnauthorizedException('Account cannot change password directly');
+    }
+
+    const isPasswordValid = await argon2.verify(user.password_hash, oldPassword);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid old password');
+    }
+
+    const hashedNewPassword = await argon2.hash(newPassword);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password_hash: hashedNewPassword },
+    });
+
+    return { message: 'Password changed successfully' };
+  }
 }

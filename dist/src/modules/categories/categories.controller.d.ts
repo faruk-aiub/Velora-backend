@@ -11,8 +11,8 @@ export declare class CategoriesController {
             deleted_at: Date | null;
             name: string;
             slug: string;
-            image_url: string | null;
             parent_id: string | null;
+            image_url: string | null;
         }[];
     }>;
     getCategoryTree(): Promise<{
@@ -25,8 +25,8 @@ export declare class CategoriesController {
                     deleted_at: Date | null;
                     name: string;
                     slug: string;
-                    image_url: string | null;
                     parent_id: string | null;
+                    image_url: string | null;
                 }[];
             } & {
                 id: string;
@@ -35,8 +35,8 @@ export declare class CategoriesController {
                 deleted_at: Date | null;
                 name: string;
                 slug: string;
-                image_url: string | null;
                 parent_id: string | null;
+                image_url: string | null;
             })[];
         } & {
             id: string;
@@ -45,8 +45,8 @@ export declare class CategoriesController {
             deleted_at: Date | null;
             name: string;
             slug: string;
-            image_url: string | null;
             parent_id: string | null;
+            image_url: string | null;
         })[];
     }>;
     createCategory(createDto: CreateCategoryDto): Promise<{
@@ -58,8 +58,8 @@ export declare class CategoriesController {
             deleted_at: Date | null;
             name: string;
             slug: string;
-            image_url: string | null;
             parent_id: string | null;
+            image_url: string | null;
         };
     }>;
     updateCategory(id: string, updateDto: UpdateCategoryDto): Promise<{
@@ -71,8 +71,8 @@ export declare class CategoriesController {
             deleted_at: Date | null;
             name: string;
             slug: string;
-            image_url: string | null;
             parent_id: string | null;
+            image_url: string | null;
         };
     }>;
     deleteCategory(id: string): Promise<{

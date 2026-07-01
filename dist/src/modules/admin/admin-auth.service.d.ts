@@ -32,4 +32,7 @@ export declare class AdminAuthService {
             is_two_factor_enabled: boolean;
         };
     }>;
+    changePassword(userId: string, oldPassword: string, newPassword: string): Promise<{
+        message: string;
+    }>;
 }

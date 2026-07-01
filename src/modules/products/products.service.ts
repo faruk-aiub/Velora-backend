@@ -27,12 +27,13 @@ export class ProductsService {
     minPrice?: number,
     maxPrice?: number,
     sort?: string,
-    search?: string
+    search?: string,
+    isAdmin: boolean = false
   ): Promise<PaginatedResponse<any>> {
     const { skip, take } = getPaginationParams(page, limit);
     
     // Create deterministic cache key
-    const cacheKey = `cache:products:list:cat_${categoryId || 'all'}:br_${brandId || 'all'}:min_${minPrice || 0}:max_${maxPrice || 'inf'}:s_${sort || 'default'}:q_${search || 'none'}:p_${page}:l_${limit}`;
+    const cacheKey = `cache:products:list:cat_${categoryId || 'all'}:br_${brandId || 'all'}:min_${minPrice || 0}:max_${maxPrice || 'inf'}:s_${sort || 'default'}:q_${search || 'none'}:p_${page}:l_${limit}:admin_${isAdmin}`;
     
     return this.redis.getOrSet(cacheKey, 300, async () => {
       let sortField = 'created_at';
@@ -48,9 +49,12 @@ export class ProductsService {
       }
 
       const whereClause: any = {
-        is_active: true,
         deleted_at: null,
       };
+
+      if (!isAdmin) {
+        whereClause.is_active = true;
+      }
 
       if (categoryId) {
         whereClause.category = {
@@ -95,7 +99,7 @@ export class ProductsService {
               select: { id: true, price: true, compare_price: true },
             },
             images: {
-              where: { sort_order: 0 },
+              orderBy: { sort_order: 'asc' },
               select: { url: true, alt_text: true },
               take: 1,
             },
@@ -144,6 +148,35 @@ export class ProductsService {
     });
   }
 
+  async findOneByIdForAdmin(id: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { id, deleted_at: null },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        base_price: true,
+        category: { select: { id: true, name: true, slug: true } },
+        brand: { select: { id: true, name: true } },
+        images: { select: { id: true, url: true, alt_text: true, sort_order: true }, orderBy: { sort_order: 'asc' } },
+        variants: {
+          select: {
+            id: true,
+            sku: true,
+            price: true,
+            compare_price: true,
+            attributes: true,
+            inventory: { select: { quantity: true, reserved_quantity: true } }
+          }
+        }
+      }
+    });
+
+    if (!product) throw new NotFoundException(`Product not found`);
+    return product;
+  }
+
   // --- ADMIN PRODUCT CRUD ---
 
   async create(dto: CreateProductDto) {
@@ -159,7 +192,20 @@ export class ProductsService {
         description: dto.description,
         category_id: dto.category_id,
         brand_id: dto.brand_id,
+        base_price: dto.base_price !== undefined ? dto.base_price : 0,
         is_active: dto.is_active ?? true,
+        variants: {
+          create: {
+            sku: `${slug}-default-${Date.now()}`,
+            price: dto.base_price !== undefined ? dto.base_price : 0,
+            inventory: {
+              create: {
+                quantity: 100,
+                reserved_quantity: 0
+              }
+            }
+          }
+        }
       }
     });
 
@@ -186,9 +232,34 @@ export class ProductsService {
         description: dto.description,
         category_id: dto.category_id,
         brand_id: dto.brand_id,
+        ...(dto.base_price !== undefined && { base_price: dto.base_price }),
         is_active: dto.is_active,
       }
     });
+
+    if (dto.base_price !== undefined) {
+      const variants = await this.prisma.productVariant.findMany({ where: { product_id: id } });
+      if (variants.length > 0) {
+        await this.prisma.productVariant.updateMany({
+          where: { product_id: id },
+          data: { price: dto.base_price }
+        });
+      } else {
+        await this.prisma.productVariant.create({
+          data: {
+            product_id: id,
+            sku: `${slug}-default-${Date.now()}`,
+            price: dto.base_price,
+            inventory: {
+              create: {
+                quantity: 100,
+                reserved_quantity: 0
+              }
+            }
+          }
+        });
+      }
+    }
 
     await this.invalidateProductCaches();
     return updated;

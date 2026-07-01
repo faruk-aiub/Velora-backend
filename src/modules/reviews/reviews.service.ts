@@ -43,7 +43,7 @@ export class ReviewsService {
         product_id: dto.product_id,
         rating: dto.rating,
         comment: dto.comment,
-        is_approved: false // Requires admin approval by default
+        is_approved: true // Approved by default based on new requirements
       }
     });
   }
@@ -79,6 +79,23 @@ export class ReviewsService {
         total_reviews: aggregate._count.rating || 0
       }
     };
+  }
+
+  async getMyReviews(userId: string, page?: number, limit?: number): Promise<PaginatedResponse<any>> {
+    const { skip, take, page: currentPage, limit: currentLimit } = getPaginationParams(page, limit);
+
+    const [reviews, total] = await this.prisma.$transaction([
+      this.prisma.review.findMany({
+        where: { user_id: userId },
+        skip,
+        take,
+        orderBy: { created_at: 'desc' },
+        include: { product: { select: { title: true, slug: true, images: { take: 1, select: { url: true } } } } }
+      }),
+      this.prisma.review.count({ where: { user_id: userId } })
+    ]);
+
+    return createPaginationResponse(reviews, total, currentPage, currentLimit);
   }
 
   // --- ADMIN METHODS ---

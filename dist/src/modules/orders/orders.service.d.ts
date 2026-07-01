@@ -10,9 +10,9 @@ export declare class OrdersService {
         created_at: Date;
         items: {
             id: string;
-            image_url: string | null;
             sku: string;
             price: import("@prisma/client-runtime-utils").Decimal;
+            image_url: string | null;
             quantity: number;
             product_name: string;
         }[];

@@ -1,6 +1,7 @@
 import { AdminAuthService } from './admin-auth.service';
 import { LoginDto } from '../auth/dto/auth.dto';
 import type { Request, Response } from 'express';
+import { AdminChangePasswordDto } from './dto/admin-auth.dto';
 export declare class AdminAuthController {
     private readonly adminAuthService;
     constructor(adminAuthService: AdminAuthService);
@@ -31,6 +32,9 @@ export declare class AdminAuthController {
         };
     }>;
     logout(response: Response): Promise<{
+        message: string;
+    }>;
+    changePassword(changePasswordDto: AdminChangePasswordDto, request: Request): Promise<{
         message: string;
     }>;
 }

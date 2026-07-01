@@ -5,15 +5,19 @@ import { PaginatedResponse } from '../../common/utils/pagination.util';
 export declare class PaymentsService {
     private readonly prisma;
     private readonly inventoryService;
+    private stripe;
     constructor(prisma: PrismaService, inventoryService: InventoryService);
     initiatePayment(userId: string, dto: InitiatePaymentDto): Promise<{
         paymentId: string;
-        paymentUrl: string;
-        message?: undefined;
-    } | {
-        paymentId: string;
         message: string;
         paymentUrl?: undefined;
+    } | {
+        paymentId: string;
+        paymentUrl: string | null;
+        message?: undefined;
+    }>;
+    handleStripeWebhook(signature: string, payload: Buffer): Promise<{
+        received: boolean;
     }>;
     verifyPayment(dto: VerifyPaymentDto): Promise<{
         id: string;

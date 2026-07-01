@@ -8,18 +8,27 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PaymentsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const payments_dto_1 = require("./dto/payments.dto");
 const inventory_service_1 = require("../inventory/inventory.service");
 const pagination_util_1 = require("../../common/utils/pagination.util");
+const stripe_1 = __importDefault(require("stripe"));
 let PaymentsService = class PaymentsService {
     prisma;
     inventoryService;
+    stripe;
     constructor(prisma, inventoryService) {
         this.prisma = prisma;
         this.inventoryService = inventoryService;
+        this.stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY || 'sk_test_mock', {
+            apiVersion: '2023-10-16',
+        });
     }
     async initiatePayment(userId, dto) {
         const order = await this.prisma.order.findUnique({ where: { id: dto.orderId } });
@@ -29,24 +38,19 @@ let PaymentsService = class PaymentsService {
             throw new common_1.BadRequestException('Unauthorized order access');
         if (order.status !== 'PENDING')
             throw new common_1.BadRequestException('Order is no longer pending');
-        const existingPayment = await this.prisma.payment.findFirst({
+        let payment = await this.prisma.payment.findFirst({
             where: { order_id: order.id, status: 'PENDING' }
         });
-        const baseUrl = process.env.BACKEND_URL || 'http://localhost:3000/api/v1';
-        if (existingPayment) {
-            return {
-                paymentId: existingPayment.id,
-                paymentUrl: `${baseUrl}/payments/mock-gateway/${existingPayment.id}`
-            };
+        if (!payment) {
+            payment = await this.prisma.payment.create({
+                data: {
+                    order_id: order.id,
+                    provider: dto.provider,
+                    amount: order.total_amount,
+                    status: 'PENDING'
+                }
+            });
         }
-        const payment = await this.prisma.payment.create({
-            data: {
-                order_id: order.id,
-                provider: dto.provider,
-                amount: order.total_amount,
-                status: 'PENDING'
-            }
-        });
         if (dto.provider === 'COD') {
             await this.prisma.order.update({
                 where: { id: order.id },
@@ -57,10 +61,64 @@ let PaymentsService = class PaymentsService {
             });
             return { paymentId: payment.id, message: 'COD Order placed successfully' };
         }
-        return {
-            paymentId: payment.id,
-            paymentUrl: `${baseUrl}/payments/mock-gateway/${payment.id}`
-        };
+        if (dto.provider === 'STRIPE') {
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+            const session = await this.stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: [
+                    {
+                        price_data: {
+                            currency: 'usd',
+                            product_data: {
+                                name: `Order #${order.order_number}`,
+                            },
+                            unit_amount: Math.round(Number(order.total_amount) * 100),
+                        },
+                        quantity: 1,
+                    },
+                ],
+                mode: 'payment',
+                success_url: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
+                cancel_url: `${frontendUrl}/checkout/cancel?order_id=${order.id}`,
+                client_reference_id: payment.id,
+                metadata: {
+                    orderId: order.id,
+                    paymentId: payment.id
+                }
+            });
+            return {
+                paymentId: payment.id,
+                paymentUrl: session.url
+            };
+        }
+        throw new common_1.BadRequestException('Invalid payment provider');
+    }
+    async handleStripeWebhook(signature, payload) {
+        const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+        let event;
+        try {
+            if (webhookSecret) {
+                event = this.stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+            }
+            else {
+                event = JSON.parse(payload.toString());
+            }
+        }
+        catch (err) {
+            throw new common_1.BadRequestException(`Webhook Error: ${err.message}`);
+        }
+        if (event.type === 'checkout.session.completed') {
+            const session = event.data.object;
+            const paymentId = session.client_reference_id;
+            if (paymentId) {
+                await this.verifyPayment({
+                    paymentId: paymentId,
+                    status: payments_dto_1.PaymentStatusEnum.SUCCESS,
+                    transactionId: session.payment_intent || session.id
+                });
+            }
+        }
+        return { received: true };
     }
     async verifyPayment(dto) {
         const payment = await this.prisma.payment.findUnique({

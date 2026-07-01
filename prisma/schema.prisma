@@ -34,6 +34,7 @@ enum PaymentProvider {
   BKASH
   NAGAD
   COD
+  STRIPE
 }
 
 enum PaymentStatus {
@@ -93,6 +94,11 @@ model User {
   reviews  Review[]
   wishlist Wishlist[]
   cart     Cart?
+
+  audit_logs       AuditLog[]
+  notifications    Notification[]
+  contact_messages ContactMessage[]
+  contact_replies  ContactReply[]
 
   @@index([email])
 }
@@ -494,4 +500,85 @@ model AppConfig {
   description String?
 
   updated_at  DateTime @updatedAt
+}
+
+// =========================
+// AUDIT LOGS
+// =========================
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  user_id    String?
+  action     String
+  entity     String?
+  entity_id  String?
+  details    Json?
+  ip_address String?
+  created_at DateTime @default(now())
+
+  user User? @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id])
+  @@index([action])
+  @@index([entity, entity_id])
+}
+
+// =========================
+// NOTIFICATIONS
+// =========================
+
+model Notification {
+  id         String   @id @default(uuid())
+  user_id    String
+  title      String
+  message    String   @db.Text
+  type       String   @default("SYSTEM")
+  is_read    Boolean  @default(false)
+  link_url   String?
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, is_read])
+}
+
+// =========================
+// CONTACT MESSAGES
+// =========================
+
+model ContactMessage {
+  id         String   @id @default(uuid())
+  user_id    String?
+  first_name String
+  last_name  String
+  email      String
+  subject    String?
+  message    String   @db.Text
+  is_read    Boolean  @default(false)
+  status     String   @default("OPEN")
+  
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user       User?          @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  replies    ContactReply[]
+
+  @@index([is_read])
+  @@index([email])
+  @@index([user_id])
+}
+
+model ContactReply {
+  id         String   @id @default(uuid())
+  message_id String
+  sender_id  String?  // The User ID (admin or customer) who sent the reply
+  message    String   @db.Text
+  is_read    Boolean  @default(false)
+  
+  created_at DateTime @default(now())
+
+  contact_message ContactMessage @relation(fields: [message_id], references: [id], onDelete: Cascade)
+  sender          User?          @relation(fields: [sender_id], references: [id], onDelete: SetNull)
+
+  @@index([message_id])
 }
