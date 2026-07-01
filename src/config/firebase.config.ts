@@ -10,9 +10,13 @@ if (!getApps().length) {
   try {
     initializeApp({
       credential: applicationDefault(),
+      projectId: 'velora-b50eb',
     });
   } catch (error) {
-    console.warn('Firebase Admin initialization failed. Ensure GOOGLE_APPLICATION_CREDENTIALS is set.', error);
+    console.warn('Firebase Admin credentials not found. Initializing with projectId only for verifyIdToken.');
+    initializeApp({
+      projectId: 'velora-b50eb',
+    });
   }
 }
 
