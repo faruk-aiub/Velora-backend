@@ -1,4 +1,5 @@
 import { PrismaService } from '../../database/prisma.service';
+import { CreateOrderDto } from './dto/orders.dto';
 import { PaginatedResponse } from '../../common/utils/pagination.util';
 import { OrderStatusEnum } from './dto/orders.dto';
 export declare class OrdersService {
@@ -36,10 +37,7 @@ export declare class OrdersService {
             notes: string | null;
         }[];
     }>;
-    createOrder(userId: string, shippingAddressId: string, cartItems: {
-        variantId: string;
-        quantity: number;
-    }[]): Promise<{
+    createOrder(userId: string, dto: CreateOrderDto): Promise<{
         id: string;
         status: import("@prisma/client").$Enums.OrderStatus;
         order_number: string;
@@ -61,6 +59,8 @@ export declare class OrdersService {
         created_at: Date;
         updated_at: Date;
         user_id: string;
+        customer_name: string;
+        contact_number: string;
         status: import("@prisma/client").$Enums.OrderStatus;
         order_number: string;
         total_amount: import("@prisma/client-runtime-utils").Decimal;

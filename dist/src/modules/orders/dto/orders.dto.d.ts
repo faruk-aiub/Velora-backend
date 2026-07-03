@@ -3,6 +3,8 @@ export declare class CartItemDto {
     quantity: number;
 }
 export declare class CreateOrderDto {
+    customer_name: string;
+    contact_number: string;
     shippingAddressId: string;
     cartItems: CartItemDto[];
 }

@@ -15,6 +15,14 @@ export class CartItemDto {
 export class CreateOrderDto {
   @IsNotEmpty()
   @IsString()
+  customer_name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  contact_number: string;
+
+  @IsNotEmpty()
+  @IsString()
   shippingAddressId: string;
 
   @IsArray()

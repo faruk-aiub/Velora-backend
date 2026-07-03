@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { CreateOrderDto } from './dto/orders.dto';
 import { getPaginationParams, createPaginationResponse, PaginatedResponse } from '../../common/utils/pagination.util';
 import { OrderStatusEnum } from './dto/orders.dto';
 
@@ -66,14 +67,14 @@ export class OrdersService {
     return order;
   }
 
-  async createOrder(userId: string, shippingAddressId: string, cartItems: { variantId: string, quantity: number }[]) {
+  async createOrder(userId: string, dto: CreateOrderDto) {
     // Validate shipping address belongs to user
-    const address = await this.prisma.userAddress.findUnique({ where: { id: shippingAddressId } });
+    const address = await this.prisma.userAddress.findUnique({ where: { id: dto.shippingAddressId } });
     if (!address || address.user_id !== userId) {
       throw new BadRequestException('Invalid shipping address');
     }
 
-    if (!cartItems || cartItems.length === 0) {
+    if (!dto.cartItems || dto.cartItems.length === 0) {
       throw new BadRequestException('Cart is empty');
     }
 
@@ -82,7 +83,7 @@ export class OrdersService {
       let totalAmount = 0;
       const orderItemsToCreate: any[] = [];
 
-      for (const item of cartItems) {
+      for (const item of dto.cartItems) {
         const variant = await tx.productVariant.findUnique({
           where: { id: item.variantId },
           select: {
@@ -131,9 +132,11 @@ export class OrdersService {
       const order = await tx.order.create({
         data: {
           user_id: userId,
-          shipping_address_id: shippingAddressId,
+          shipping_address_id: dto.shippingAddressId,
           order_number: orderNumber,
           total_amount: totalAmount,
+          customer_name: dto.customer_name,
+          contact_number: dto.contact_number,
           status: 'PENDING',
           items: {
             create: orderItemsToCreate
@@ -182,6 +185,8 @@ export class OrdersService {
         select: {
           id: true,
           order_number: true,
+          customer_name: true,
+          contact_number: true,
           total_amount: true,
           status: true,
           created_at: true,

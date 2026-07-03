@@ -67,6 +67,8 @@ export declare class OrdersController {
             created_at: Date;
             updated_at: Date;
             user_id: string;
+            customer_name: string;
+            contact_number: string;
             status: import("@prisma/client").$Enums.OrderStatus;
             order_number: string;
             total_amount: import("@prisma/client-runtime-utils").Decimal;

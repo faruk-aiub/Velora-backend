@@ -73,18 +73,18 @@ let OrdersService = class OrdersService {
             throw new common_1.NotFoundException('Order not found');
         return order;
     }
-    async createOrder(userId, shippingAddressId, cartItems) {
-        const address = await this.prisma.userAddress.findUnique({ where: { id: shippingAddressId } });
+    async createOrder(userId, dto) {
+        const address = await this.prisma.userAddress.findUnique({ where: { id: dto.shippingAddressId } });
         if (!address || address.user_id !== userId) {
             throw new common_1.BadRequestException('Invalid shipping address');
         }
-        if (!cartItems || cartItems.length === 0) {
+        if (!dto.cartItems || dto.cartItems.length === 0) {
             throw new common_1.BadRequestException('Cart is empty');
         }
         return this.prisma.$transaction(async (tx) => {
             let totalAmount = 0;
             const orderItemsToCreate = [];
-            for (const item of cartItems) {
+            for (const item of dto.cartItems) {
                 const variant = await tx.productVariant.findUnique({
                     where: { id: item.variantId },
                     select: {
@@ -125,9 +125,11 @@ let OrdersService = class OrdersService {
             const order = await tx.order.create({
                 data: {
                     user_id: userId,
-                    shipping_address_id: shippingAddressId,
+                    shipping_address_id: dto.shippingAddressId,
                     order_number: orderNumber,
                     total_amount: totalAmount,
+                    customer_name: dto.customer_name,
+                    contact_number: dto.contact_number,
                     status: 'PENDING',
                     items: {
                         create: orderItemsToCreate
@@ -169,6 +171,8 @@ let OrdersService = class OrdersService {
                 select: {
                     id: true,
                     order_number: true,
+                    customer_name: true,
+                    contact_number: true,
                     total_amount: true,
                     status: true,
                     created_at: true,

@@ -33,13 +33,25 @@ __decorate([
     __metadata("design:type", Number)
 ], CartItemDto.prototype, "quantity", void 0);
 class CreateOrderDto {
+    customer_name;
+    contact_number;
     shippingAddressId;
     cartItems;
     static _OPENAPI_METADATA_FACTORY() {
-        return { shippingAddressId: { required: true, type: () => String }, cartItems: { required: true, type: () => [require("./orders.dto").CartItemDto] } };
+        return { customer_name: { required: true, type: () => String }, contact_number: { required: true, type: () => String }, shippingAddressId: { required: true, type: () => String }, cartItems: { required: true, type: () => [require("./orders.dto").CartItemDto] } };
     }
 }
 exports.CreateOrderDto = CreateOrderDto;
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateOrderDto.prototype, "customer_name", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateOrderDto.prototype, "contact_number", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsString)(),

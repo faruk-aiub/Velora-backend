@@ -27,7 +27,7 @@ let OrdersController = class OrdersController {
     }
     async createOrder(req, body) {
         const userId = req.user.sub;
-        const order = await this.ordersService.createOrder(userId, body.shippingAddressId, body.cartItems);
+        const order = await this.ordersService.createOrder(userId, body);
         return { message: 'Order created successfully', data: order };
     }
     async getUserOrders(req, page, limit) {

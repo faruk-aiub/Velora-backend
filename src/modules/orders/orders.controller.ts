@@ -15,7 +15,7 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   async createOrder(@Req() req: Request, @Body() body: CreateOrderDto) {
     const userId = (req as any).user.sub;
-    const order = await this.ordersService.createOrder(userId, body.shippingAddressId, body.cartItems);
+    const order = await this.ordersService.createOrder(userId, body);
     return { message: 'Order created successfully', data: order };
   }
 
