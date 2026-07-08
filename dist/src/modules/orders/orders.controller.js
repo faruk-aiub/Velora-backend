@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrdersController = void 0;
 const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
+const rxjs_1 = require("rxjs");
+const operators_1 = require("rxjs/operators");
 const orders_service_1 = require("./orders.service");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../../common/guards/roles.guard");
@@ -33,6 +35,10 @@ let OrdersController = class OrdersController {
     async getUserOrders(req, page, limit) {
         const userId = req.user.sub;
         return this.ordersService.findAll(userId, page, limit);
+    }
+    streamOrderUpdates(req) {
+        const userId = req.user.sub;
+        return this.ordersService.orderStatusEvents.pipe((0, operators_1.filter)(event => event.userId === userId), (0, operators_1.map)(event => ({ data: event })));
     }
     async getOrderDetails(req, id) {
         const userId = req.user.sub;
@@ -73,6 +79,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, Number, Number]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "getUserOrders", null);
+__decorate([
+    (0, common_1.Sse)('orders/stream'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    openapi.ApiResponse({ status: 200, type: Object }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", rxjs_1.Observable)
+], OrdersController.prototype, "streamOrderUpdates", null);
 __decorate([
     (0, common_1.Get)('orders/:id'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

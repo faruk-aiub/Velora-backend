@@ -14,8 +14,8 @@ export declare class AuthController {
                 phone: string | null;
                 id: string;
                 email: string;
-                auth_provider: import("@prisma/client").$Enums.AuthProvider;
                 provider_id: string | null;
+                auth_provider: import("@prisma/client").$Enums.AuthProvider;
                 role: import("@prisma/client").$Enums.Role;
                 is_email_verified: boolean;
                 is_active: boolean;

@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Req, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ContactService } from './contact.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateContactMessageDto } from './dto/create-contact.dto';
 import { ReplyContactMessageDto } from './dto/reply-contact.dto';
 import { UpdateContactStatusDto } from './dto/update-contact-status.dto';
@@ -11,7 +12,10 @@ import { Roles } from '../../common/decorators/roles.decorator';
 @ApiTags('Contact')
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly contactService: ContactService) {}
+  constructor(
+    private readonly contactService: ContactService,
+    private readonly notificationsService: NotificationsService
+  ) {}
 
   // Public endpoint for users to submit messages
   @Post()
@@ -72,6 +76,17 @@ export class ContactController {
 
     const isAdmin = req.user.role === 'ADMIN';
     const reply = await this.contactService.reply(id, req.user.sub, dto.message, isAdmin);
+    
+    // If admin is replying, send a real-time notification to the user
+    if (isAdmin && message.user_id) {
+      this.notificationsService.createNotification({
+        user_id: message.user_id,
+        title: 'New Reply from Support',
+        message: 'Support has replied to your message.',
+        type: 'system'
+      }).catch(e => console.error('Failed to send admin reply notification', e));
+    }
+
     return { message: 'Reply sent', data: reply };
   }
 

@@ -1,24 +1,26 @@
 import { ContactService } from './contact.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateContactMessageDto } from './dto/create-contact.dto';
 import { ReplyContactMessageDto } from './dto/reply-contact.dto';
 import { UpdateContactStatusDto } from './dto/update-contact-status.dto';
 export declare class ContactController {
     private readonly contactService;
-    constructor(contactService: ContactService);
+    private readonly notificationsService;
+    constructor(contactService: ContactService, notificationsService: NotificationsService);
     create(createDto: CreateContactMessageDto): Promise<{
         message: string;
         data: {
             id: string;
-            email: string;
-            created_at: Date;
-            updated_at: Date;
             first_name: string;
             last_name: string;
+            email: string;
             subject: string | null;
-            user_id: string | null;
             message: string;
-            status: string;
             is_read: boolean;
+            status: string;
+            created_at: Date;
+            updated_at: Date;
+            user_id: string | null;
         };
     }>;
     getMyMessages(req: any): Promise<{
@@ -28,16 +30,16 @@ export declare class ContactController {
             };
         } & {
             id: string;
-            email: string;
-            created_at: Date;
-            updated_at: Date;
             first_name: string;
             last_name: string;
+            email: string;
             subject: string | null;
-            user_id: string | null;
             message: string;
-            status: string;
             is_read: boolean;
+            status: string;
+            created_at: Date;
+            updated_at: Date;
+            user_id: string | null;
         })[];
     }>;
     getOne(id: string, req: any): Promise<{
@@ -59,24 +61,24 @@ export declare class ContactController {
                 } | null;
             } & {
                 id: string;
-                created_at: Date;
                 message: string;
                 is_read: boolean;
+                created_at: Date;
                 message_id: string;
                 sender_id: string | null;
             })[];
         } & {
             id: string;
-            email: string;
-            created_at: Date;
-            updated_at: Date;
             first_name: string;
             last_name: string;
+            email: string;
             subject: string | null;
-            user_id: string | null;
             message: string;
-            status: string;
             is_read: boolean;
+            status: string;
+            created_at: Date;
+            updated_at: Date;
+            user_id: string | null;
         };
     }>;
     markRepliesAsRead(id: string, req: any): Promise<{
@@ -94,9 +96,9 @@ export declare class ContactController {
             } | null;
         } & {
             id: string;
-            created_at: Date;
             message: string;
             is_read: boolean;
+            created_at: Date;
             message_id: string;
             sender_id: string | null;
         };
@@ -104,16 +106,16 @@ export declare class ContactController {
     findAll(): Promise<{
         data: {
             id: string;
-            email: string;
-            created_at: Date;
-            updated_at: Date;
             first_name: string;
             last_name: string;
+            email: string;
             subject: string | null;
-            user_id: string | null;
             message: string;
-            status: string;
             is_read: boolean;
+            status: string;
+            created_at: Date;
+            updated_at: Date;
+            user_id: string | null;
         }[];
     }>;
     getUnreadCount(): Promise<{
@@ -123,48 +125,48 @@ export declare class ContactController {
         message: string;
         data: {
             id: string;
-            email: string;
-            created_at: Date;
-            updated_at: Date;
             first_name: string;
             last_name: string;
+            email: string;
             subject: string | null;
-            user_id: string | null;
             message: string;
-            status: string;
             is_read: boolean;
+            status: string;
+            created_at: Date;
+            updated_at: Date;
+            user_id: string | null;
         };
     }>;
     markAsRead(id: string): Promise<{
         message: string;
         data: {
             id: string;
-            email: string;
-            created_at: Date;
-            updated_at: Date;
             first_name: string;
             last_name: string;
+            email: string;
             subject: string | null;
-            user_id: string | null;
             message: string;
-            status: string;
             is_read: boolean;
+            status: string;
+            created_at: Date;
+            updated_at: Date;
+            user_id: string | null;
         };
     }>;
     markAsUnread(id: string): Promise<{
         message: string;
         data: {
             id: string;
-            email: string;
-            created_at: Date;
-            updated_at: Date;
             first_name: string;
             last_name: string;
+            email: string;
             subject: string | null;
-            user_id: string | null;
             message: string;
-            status: string;
             is_read: boolean;
+            status: string;
+            created_at: Date;
+            updated_at: Date;
+            user_id: string | null;
         };
     }>;
     remove(id: string): Promise<{

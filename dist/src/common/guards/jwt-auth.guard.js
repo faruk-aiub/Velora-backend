@@ -38,6 +38,9 @@ let JwtAuthGuard = class JwtAuthGuard {
         return true;
     }
     extractTokenFromHeader(request) {
+        if (request.query && request.query.token) {
+            return request.query.token;
+        }
         const [type, token] = request.headers.authorization?.split(' ') ?? [];
         return type === 'Bearer' ? token : undefined;
     }

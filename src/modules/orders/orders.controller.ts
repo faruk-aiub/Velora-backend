@@ -1,5 +1,7 @@
 import {  ApiTags , ApiBearerAuth } from '@nestjs/swagger';
-import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Req, Sse, MessageEvent } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -24,6 +26,16 @@ export class OrdersController {
   async getUserOrders(@Req() req: Request, @Query('page') page: number, @Query('limit') limit: number) {
     const userId = (req as any).user.sub;
     return this.ordersService.findAll(userId, page, limit);
+  }
+
+  @Sse('orders/stream')
+  @UseGuards(JwtAuthGuard)
+  streamOrderUpdates(@Req() req: Request): Observable<MessageEvent> {
+    const userId = (req as any).user.sub;
+    return this.ordersService.orderStatusEvents.pipe(
+      filter(event => event.userId === userId),
+      map(event => ({ data: event } as MessageEvent))
+    );
   }
 
   @Get('orders/:id')

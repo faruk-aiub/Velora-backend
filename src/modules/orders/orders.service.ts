@@ -3,10 +3,16 @@ import { PrismaService } from '../../database/prisma.service';
 import { CreateOrderDto } from './dto/orders.dto';
 import { getPaginationParams, createPaginationResponse, PaginatedResponse } from '../../common/utils/pagination.util';
 import { OrderStatusEnum } from './dto/orders.dto';
-
+import { Subject } from 'rxjs';
+import { NotificationsService } from '../notifications/notifications.service';
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prisma: PrismaService) {}
+  public readonly orderStatusEvents = new Subject<{ userId: string, orderId: string, status: string, type: string }>();
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService
+  ) {}
 
   async findAll(userId: string, page?: number, limit?: number): Promise<PaginatedResponse<any>> {
     const { skip, take, page: currentPage, limit: currentLimit } = getPaginationParams(page, limit);
@@ -23,6 +29,9 @@ export class OrdersService {
           total_amount: true,
           status: true,
           created_at: true,
+          items: {
+            select: { product_name: true }
+          }
         }
       }),
       this.prisma.order.count({ where: { user_id: userId } })
@@ -79,7 +88,7 @@ export class OrdersService {
     }
 
     // Interactive transaction
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       let totalAmount = 0;
       const orderItemsToCreate: any[] = [];
 
@@ -152,6 +161,23 @@ export class OrdersService {
 
       return order;
     });
+
+    this.orderStatusEvents.next({ userId, orderId: result.id, status: result.status, type: 'ORDER_CREATED' });
+    
+    // Format product name string for notification
+    const firstProductName = orderItemsToCreate[0]?.product_name || 'Item';
+    const otherItemsCount = orderItemsToCreate.length - 1;
+    const itemsDisplay = otherItemsCount > 0 ? `${firstProductName} +${otherItemsCount} more` : firstProductName;
+
+    // Send real-time notification
+    this.notificationsService.createNotification({
+      user_id: userId,
+      title: 'Order Placed Successfully',
+      message: `Your order for ${itemsDisplay} has been placed and is being processed.`,
+      type: 'order'
+    }).catch(e => console.error('Failed to send order notification', e));
+
+    return result;
   }
 
   async trackByNumber(orderNumber: string) {
@@ -190,6 +216,9 @@ export class OrdersService {
           total_amount: true,
           status: true,
           created_at: true,
+          items: {
+            select: { product_name: true }
+          },
           user: { select: { id: true, email: true } }
         }
       }),
@@ -207,7 +236,7 @@ export class OrdersService {
 
     if (!order) throw new NotFoundException('Order not found');
 
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       // If cancelling or returning, refund reserved stock
       if (['CANCELLED', 'RETURNED'].includes(status) && !['CANCELLED', 'RETURNED'].includes(order.status)) {
         for (const item of order.items) {
@@ -236,5 +265,22 @@ export class OrdersService {
 
       return updated;
     });
+
+    this.orderStatusEvents.next({ userId: order.user_id, orderId: result.id, status: result.status, type: 'STATUS_UPDATED' });
+    
+    // Format product name string for notification
+    const firstProductName = order.items && order.items.length > 0 ? order.items[0].product_name : 'Item';
+    const otherItemsCount = (order.items?.length || 1) - 1;
+    const itemsDisplay = otherItemsCount > 0 ? `${firstProductName} +${otherItemsCount} more` : firstProductName;
+
+    // Send real-time notification
+    this.notificationsService.createNotification({
+      user_id: order.user_id,
+      title: 'Order Status Updated',
+      message: `Your order for ${itemsDisplay} is now ${result.status}.`,
+      type: 'order'
+    }).catch(e => console.error('Failed to send status notification', e));
+
+    return result;
   }
 }

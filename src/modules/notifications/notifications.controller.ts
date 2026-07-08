@@ -1,18 +1,32 @@
 import {  ApiTags , ApiBearerAuth } from '@nestjs/swagger';
-import { Controller, Get, Post, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, UseGuards, Req, Sse } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { PrismaService } from '../../database/prisma.service';
+import { NotificationsService } from './notifications.service';
 import type { Request } from 'express';
+import { Observable } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 
 @ApiTags('Notifications')
 @ApiBearerAuth()
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
 export class NotificationsController {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService
+  ) {}
 
-  constructor(private readonly prisma: PrismaService) {}
+  @Sse('stream')
+  streamNotifications(@Req() req: Request): Observable<MessageEvent> {
+    const userId = (req as any).user.sub;
+    return this.notificationsService.notificationEvents.pipe(
+      filter(event => event.user_id === userId),
+      map(event => ({ data: event } as MessageEvent))
+    );
+  }
 
   @Get()
   async getNotifications(@Req() req: Request) {

@@ -1,18 +1,22 @@
 import { PrismaService } from '../../database/prisma.service';
+import { NotificationsService } from './notifications.service';
 import type { Request } from 'express';
+import { Observable } from 'rxjs';
 export declare class NotificationsController {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly notificationsService;
+    constructor(prisma: PrismaService, notificationsService: NotificationsService);
+    streamNotifications(req: Request): Observable<MessageEvent>;
     getNotifications(req: Request): Promise<{
         data: {
             id: string;
-            created_at: Date;
-            title: string;
             user_id: string;
-            type: string;
+            title: string;
             message: string;
+            type: string;
             is_read: boolean;
             link_url: string | null;
+            created_at: Date;
         }[];
     }>;
     getUnreadCount(req: Request): Promise<{
@@ -41,13 +45,13 @@ export declare class NotificationsController {
             };
         } & {
             id: string;
-            created_at: Date;
-            title: string;
             user_id: string;
-            type: string;
+            title: string;
             message: string;
+            type: string;
             is_read: boolean;
             link_url: string | null;
+            created_at: Date;
         })[];
     }>;
 }

@@ -20,10 +20,19 @@ const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../../common/guards/roles.guard");
 const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const prisma_service_1 = require("../../database/prisma.service");
+const notifications_service_1 = require("./notifications.service");
+const rxjs_1 = require("rxjs");
+const operators_1 = require("rxjs/operators");
 let NotificationsController = class NotificationsController {
     prisma;
-    constructor(prisma) {
+    notificationsService;
+    constructor(prisma, notificationsService) {
         this.prisma = prisma;
+        this.notificationsService = notificationsService;
+    }
+    streamNotifications(req) {
+        const userId = req.user.sub;
+        return this.notificationsService.notificationEvents.pipe((0, operators_1.filter)(event => event.user_id === userId), (0, operators_1.map)(event => ({ data: event })));
     }
     async getNotifications(req) {
         const userId = req.user.sub;
@@ -90,6 +99,14 @@ let NotificationsController = class NotificationsController {
 };
 exports.NotificationsController = NotificationsController;
 __decorate([
+    (0, common_1.Sse)('stream'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", rxjs_1.Observable)
+], NotificationsController.prototype, "streamNotifications", null);
+__decorate([
     (0, common_1.Get)(),
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Req)()),
@@ -149,6 +166,7 @@ exports.NotificationsController = NotificationsController = __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('notifications'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], NotificationsController);
 //# sourceMappingURL=notifications.controller.js.map

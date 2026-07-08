@@ -13,10 +13,15 @@ exports.OrdersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
 const pagination_util_1 = require("../../common/utils/pagination.util");
+const rxjs_1 = require("rxjs");
+const notifications_service_1 = require("../notifications/notifications.service");
 let OrdersService = class OrdersService {
     prisma;
-    constructor(prisma) {
+    notificationsService;
+    orderStatusEvents = new rxjs_1.Subject();
+    constructor(prisma, notificationsService) {
         this.prisma = prisma;
+        this.notificationsService = notificationsService;
     }
     async findAll(userId, page, limit) {
         const { skip, take, page: currentPage, limit: currentLimit } = (0, pagination_util_1.getPaginationParams)(page, limit);
@@ -32,6 +37,9 @@ let OrdersService = class OrdersService {
                     total_amount: true,
                     status: true,
                     created_at: true,
+                    items: {
+                        select: { product_name: true }
+                    }
                 }
             }),
             this.prisma.order.count({ where: { user_id: userId } })
@@ -81,7 +89,7 @@ let OrdersService = class OrdersService {
         if (!dto.cartItems || dto.cartItems.length === 0) {
             throw new common_1.BadRequestException('Cart is empty');
         }
-        return this.prisma.$transaction(async (tx) => {
+        const result = await this.prisma.$transaction(async (tx) => {
             let totalAmount = 0;
             const orderItemsToCreate = [];
             for (const item of dto.cartItems) {
@@ -143,6 +151,17 @@ let OrdersService = class OrdersService {
             await tx.cart.deleteMany({ where: { user_id: userId } });
             return order;
         });
+        this.orderStatusEvents.next({ userId, orderId: result.id, status: result.status, type: 'ORDER_CREATED' });
+        const firstProductName = orderItemsToCreate[0]?.product_name || 'Item';
+        const otherItemsCount = orderItemsToCreate.length - 1;
+        const itemsDisplay = otherItemsCount > 0 ? `${firstProductName} +${otherItemsCount} more` : firstProductName;
+        this.notificationsService.createNotification({
+            user_id: userId,
+            title: 'Order Placed Successfully',
+            message: `Your order for ${itemsDisplay} has been placed and is being processed.`,
+            type: 'order'
+        }).catch(e => console.error('Failed to send order notification', e));
+        return result;
     }
     async trackByNumber(orderNumber) {
         const order = await this.prisma.order.findUnique({
@@ -176,6 +195,9 @@ let OrdersService = class OrdersService {
                     total_amount: true,
                     status: true,
                     created_at: true,
+                    items: {
+                        select: { product_name: true }
+                    },
                     user: { select: { id: true, email: true } }
                 }
             }),
@@ -190,7 +212,7 @@ let OrdersService = class OrdersService {
         });
         if (!order)
             throw new common_1.NotFoundException('Order not found');
-        return this.prisma.$transaction(async (tx) => {
+        const result = await this.prisma.$transaction(async (tx) => {
             if (['CANCELLED', 'RETURNED'].includes(status) && !['CANCELLED', 'RETURNED'].includes(order.status)) {
                 for (const item of order.items) {
                     const inventory = await tx.inventory.findUnique({ where: { product_variant_id: item.variant_id } });
@@ -213,11 +235,23 @@ let OrdersService = class OrdersService {
             });
             return updated;
         });
+        this.orderStatusEvents.next({ userId: order.user_id, orderId: result.id, status: result.status, type: 'STATUS_UPDATED' });
+        const firstProductName = order.items && order.items.length > 0 ? order.items[0].product_name : 'Item';
+        const otherItemsCount = (order.items?.length || 1) - 1;
+        const itemsDisplay = otherItemsCount > 0 ? `${firstProductName} +${otherItemsCount} more` : firstProductName;
+        this.notificationsService.createNotification({
+            user_id: order.user_id,
+            title: 'Order Status Updated',
+            message: `Your order for ${itemsDisplay} is now ${result.status}.`,
+            type: 'order'
+        }).catch(e => console.error('Failed to send status notification', e));
+        return result;
     }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], OrdersService);
 //# sourceMappingURL=orders.service.js.map

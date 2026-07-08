@@ -15,11 +15,11 @@ export declare class AuditController {
             id: string;
             created_at: Date;
             user_id: string | null;
-            ip_address: string | null;
             action: string;
             entity: string | null;
             entity_id: string | null;
             details: import("@prisma/client/runtime/client").JsonValue | null;
+            ip_address: string | null;
         })[];
     }>;
 }

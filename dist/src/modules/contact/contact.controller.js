@@ -17,6 +17,7 @@ const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const contact_service_1 = require("./contact.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 const create_contact_dto_1 = require("./dto/create-contact.dto");
 const reply_contact_dto_1 = require("./dto/reply-contact.dto");
 const update_contact_status_dto_1 = require("./dto/update-contact-status.dto");
@@ -25,8 +26,10 @@ const roles_guard_1 = require("../../common/guards/roles.guard");
 const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 let ContactController = class ContactController {
     contactService;
-    constructor(contactService) {
+    notificationsService;
+    constructor(contactService, notificationsService) {
         this.contactService = contactService;
+        this.notificationsService = notificationsService;
     }
     async create(createDto) {
         const message = await this.contactService.create(createDto);
@@ -58,6 +61,14 @@ let ContactController = class ContactController {
         }
         const isAdmin = req.user.role === 'ADMIN';
         const reply = await this.contactService.reply(id, req.user.sub, dto.message, isAdmin);
+        if (isAdmin && message.user_id) {
+            this.notificationsService.createNotification({
+                user_id: message.user_id,
+                title: 'New Reply from Support',
+                message: 'Support has replied to your message.',
+                type: 'system'
+            }).catch(e => console.error('Failed to send admin reply notification', e));
+        }
         return { message: 'Reply sent', data: reply };
     }
     async findAll() {
@@ -205,6 +216,7 @@ __decorate([
 exports.ContactController = ContactController = __decorate([
     (0, swagger_1.ApiTags)('Contact'),
     (0, common_1.Controller)('contact'),
-    __metadata("design:paramtypes", [contact_service_1.ContactService])
+    __metadata("design:paramtypes", [contact_service_1.ContactService,
+        notifications_service_1.NotificationsService])
 ], ContactController);
 //# sourceMappingURL=contact.controller.js.map
