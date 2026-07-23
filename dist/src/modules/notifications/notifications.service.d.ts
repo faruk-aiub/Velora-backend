@@ -20,12 +20,12 @@ export declare class NotificationsService {
         type: string;
     }): Promise<{
         id: string;
+        created_at: Date;
         title: string;
-        message: string;
+        user_id: string;
         type: string;
+        message: string;
         is_read: boolean;
         link_url: string | null;
-        created_at: Date;
-        user_id: string;
     }>;
 }

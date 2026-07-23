@@ -10,13 +10,13 @@ export declare class NotificationsController {
     getNotifications(req: Request): Promise<{
         data: {
             id: string;
-            user_id: string;
+            created_at: Date;
             title: string;
-            message: string;
+            user_id: string;
             type: string;
+            message: string;
             is_read: boolean;
             link_url: string | null;
-            created_at: Date;
         }[];
     }>;
     getUnreadCount(req: Request): Promise<{
@@ -45,13 +45,13 @@ export declare class NotificationsController {
             };
         } & {
             id: string;
-            user_id: string;
+            created_at: Date;
             title: string;
-            message: string;
+            user_id: string;
             type: string;
+            message: string;
             is_read: boolean;
             link_url: string | null;
-            created_at: Date;
         })[];
     }>;
 }

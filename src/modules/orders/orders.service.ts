@@ -159,14 +159,14 @@ export class OrdersService {
 
       await tx.cart.deleteMany({ where: { user_id: userId } });
 
-      return order;
+      return { order, orderItemsToCreate };
     });
 
-    this.orderStatusEvents.next({ userId, orderId: result.id, status: result.status, type: 'ORDER_CREATED' });
+    this.orderStatusEvents.next({ userId, orderId: result.order.id, status: result.order.status, type: 'ORDER_CREATED' });
     
     // Format product name string for notification
-    const firstProductName = orderItemsToCreate[0]?.product_name || 'Item';
-    const otherItemsCount = orderItemsToCreate.length - 1;
+    const firstProductName = result.orderItemsToCreate[0]?.product_name || 'Item';
+    const otherItemsCount = result.orderItemsToCreate.length - 1;
     const itemsDisplay = otherItemsCount > 0 ? `${firstProductName} +${otherItemsCount} more` : firstProductName;
 
     // Send real-time notification
@@ -177,7 +177,7 @@ export class OrdersService {
       type: 'order'
     }).catch(e => console.error('Failed to send order notification', e));
 
-    return result;
+    return result.order;
   }
 
   async trackByNumber(orderNumber: string) {

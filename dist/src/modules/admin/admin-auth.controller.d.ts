@@ -12,10 +12,8 @@ export declare class AdminAuthController {
             user: {
                 id: string;
                 email: string;
-                provider_id: string | null;
-                reset_token: string | null;
-                verification_token: string | null;
                 auth_provider: import("@prisma/client").$Enums.AuthProvider;
+                provider_id: string | null;
                 role: import("@prisma/client").$Enums.Role;
                 is_email_verified: boolean;
                 is_active: boolean;
@@ -24,7 +22,9 @@ export declare class AdminAuthController {
                 deleted_at: Date | null;
                 failed_login_attempts: number;
                 locked_until: Date | null;
+                reset_token: string | null;
                 reset_token_expires: Date | null;
+                verification_token: string | null;
                 verification_expires: Date | null;
                 two_factor_secret: string | null;
                 is_two_factor_enabled: boolean;

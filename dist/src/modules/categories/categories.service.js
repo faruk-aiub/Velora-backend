@@ -22,24 +22,34 @@ let CategoriesService = class CategoriesService {
         this.prisma = prisma;
     }
     async getCategoryTree() {
-        return this.prisma.category.findMany({
+        const categories = await this.prisma.category.findMany({
             where: { parent_id: null, deleted_at: null },
+            orderBy: { created_at: 'asc' },
             include: {
                 children: {
                     where: { deleted_at: null },
+                    orderBy: { created_at: 'asc' },
                     include: {
                         children: {
-                            where: { deleted_at: null }
+                            where: { deleted_at: null },
+                            orderBy: { created_at: 'asc' }
                         }
                     }
                 }
             }
         });
+        const agri = categories.find(c => c.name === 'Agricultural Products');
+        const others = categories.filter(c => c.name !== 'Agricultural Products');
+        return agri ? [agri, ...others] : others;
     }
     async getCategories() {
-        return this.prisma.category.findMany({
-            where: { deleted_at: null }
+        const categories = await this.prisma.category.findMany({
+            where: { deleted_at: null },
+            orderBy: { created_at: 'asc' }
         });
+        const agri = categories.find(c => c.name === 'Agricultural Products');
+        const others = categories.filter(c => c.name !== 'Agricultural Products');
+        return agri ? [agri, ...others] : others;
     }
     async createCategory(dto) {
         const slug = (0, slugify_1.default)(dto.name, { lower: true, strict: true });
@@ -74,14 +84,19 @@ let CategoriesService = class CategoriesService {
                 throw new common_1.ConflictException('Category with this name/slug already exists');
             }
         }
+        const dataToUpdate = {
+            name: dto.name,
+            slug,
+        };
+        if (dto.parent_id !== undefined) {
+            dataToUpdate.parent_id = dto.parent_id === '' ? null : dto.parent_id;
+        }
+        if (dto.image_url !== undefined) {
+            dataToUpdate.image_url = dto.image_url === '' ? null : dto.image_url;
+        }
         return this.prisma.category.update({
             where: { id },
-            data: {
-                name: dto.name,
-                slug,
-                parent_id: dto.parent_id,
-                image_url: dto.image_url
-            }
+            data: dataToUpdate
         });
     }
     async deleteCategory(id) {
