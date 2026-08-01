@@ -32,6 +32,14 @@ export class ContactController {
     return { data: messages };
   }
 
+  @Get('unread-count')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async getUnreadCount() {
+    return this.contactService.getUnreadCount();
+  }
+
   @Get(':id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -101,13 +109,7 @@ export class ContactController {
     return { data: messages };
   }
 
-  @Get('unread-count')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  async getUnreadCount() {
-    return this.contactService.getUnreadCount();
-  }
+
 
   @Patch(':id/status')
   @ApiBearerAuth()

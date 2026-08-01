@@ -39,6 +39,9 @@ let ContactController = class ContactController {
         const messages = await this.contactService.findMyMessages(req.user.sub);
         return { data: messages };
     }
+    async getUnreadCount() {
+        return this.contactService.getUnreadCount();
+    }
     async getOne(id, req) {
         const message = await this.contactService.findOne(id);
         if (req.user.role !== 'ADMIN' && message.user_id !== req.user.sub) {
@@ -74,9 +77,6 @@ let ContactController = class ContactController {
     async findAll() {
         const messages = await this.contactService.findAll();
         return { data: messages };
-    }
-    async getUnreadCount() {
-        return this.contactService.getUnreadCount();
     }
     async updateStatus(id, dto) {
         const message = await this.contactService.updateStatus(id, dto.status);
@@ -114,6 +114,16 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], ContactController.prototype, "getMyMessages", null);
+__decorate([
+    (0, common_1.Get)('unread-count'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    openapi.ApiResponse({ status: 200 }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ContactController.prototype, "getUnreadCount", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiBearerAuth)(),
@@ -158,16 +168,6 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], ContactController.prototype, "findAll", null);
-__decorate([
-    (0, common_1.Get)('unread-count'),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('ADMIN'),
-    openapi.ApiResponse({ status: 200 }),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], ContactController.prototype, "getUnreadCount", null);
 __decorate([
     (0, common_1.Patch)(':id/status'),
     (0, swagger_1.ApiBearerAuth)(),
