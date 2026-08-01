@@ -12,8 +12,8 @@ export declare class CmsController {
             is_active: boolean;
             created_at: Date;
             updated_at: Date;
-            title: string;
             image_url: string;
+            title: string;
             link_url: string | null;
             position: number;
         }[];
@@ -25,8 +25,8 @@ export declare class CmsController {
             is_active: boolean;
             created_at: Date;
             updated_at: Date;
-            title: string;
             image_url: string;
+            title: string;
             link_url: string | null;
             position: number;
         };
@@ -38,8 +38,8 @@ export declare class CmsController {
             is_active: boolean;
             created_at: Date;
             updated_at: Date;
-            title: string;
             image_url: string;
+            title: string;
             link_url: string | null;
             position: number;
         };

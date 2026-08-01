@@ -10,18 +10,18 @@ export declare class ProductsService {
     findAll(page?: number, limit?: number, categoryId?: string, brandId?: string, minPrice?: number, maxPrice?: number, sort?: string, search?: string, isAdmin?: boolean): Promise<PaginatedResponse<any>>;
     findOneBySlug(slug: string): Promise<{
         id: string;
-        title: string;
         slug: string;
-        description: string | null;
-        brand: {
-            id: string;
-            name: string;
-        } | null;
         category: {
             id: string;
             name: string;
             slug: string;
         };
+        title: string;
+        description: string | null;
+        brand: {
+            id: string;
+            name: string;
+        } | null;
         variants: {
             id: string;
             inventory: {
@@ -42,19 +42,19 @@ export declare class ProductsService {
     }>;
     findOneByIdForAdmin(id: string): Promise<{
         id: string;
-        title: string;
         slug: string;
+        category: {
+            id: string;
+            name: string;
+            slug: string;
+        };
+        title: string;
         description: string | null;
         base_price: number;
         brand: {
             id: string;
             name: string;
         } | null;
-        category: {
-            id: string;
-            name: string;
-            slug: string;
-        };
         variants: {
             id: string;
             inventory: {
@@ -79,8 +79,8 @@ export declare class ProductsService {
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        title: string;
         slug: string;
+        title: string;
         description: string | null;
         brand_id: string | null;
         category_id: string;
@@ -92,8 +92,8 @@ export declare class ProductsService {
         created_at: Date;
         updated_at: Date;
         deleted_at: Date | null;
-        title: string;
         slug: string;
+        title: string;
         description: string | null;
         brand_id: string | null;
         category_id: string;
