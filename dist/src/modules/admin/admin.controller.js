@@ -126,6 +126,43 @@ let AdminAnalyticsController = class AdminAnalyticsController {
         });
         return { message: 'Admin created successfully', data: admin };
     }
+    async updateAdminStatus(id, dto) {
+        const admin = await this.prisma.user.update({
+            where: { id },
+            data: { is_active: dto.is_active },
+            select: { id: true, email: true, is_active: true }
+        });
+        return { message: 'Admin status updated successfully', data: admin };
+    }
+    async deleteAdmin(id) {
+        try {
+            await this.prisma.review.deleteMany({
+                where: { user_id: id }
+            });
+            const userAddresses = await this.prisma.userAddress.findMany({ where: { user_id: id } });
+            const addressIds = userAddresses.map(a => a.id);
+            await this.prisma.order.deleteMany({
+                where: {
+                    OR: [
+                        { user_id: id },
+                        { shipping_address_id: { in: addressIds } }
+                    ]
+                }
+            });
+            await this.prisma.userProfile.deleteMany({
+                where: { user_id: id }
+            });
+            await this.prisma.user.delete({
+                where: { id }
+            });
+            return { message: 'Admin deleted successfully' };
+        }
+        catch (error) {
+            console.error(error);
+            require('fs').writeFileSync('delete_error.log', error.stack || error.message);
+            throw new Error(error.message || 'Deletion failed');
+        }
+    }
 };
 exports.AdminAnalyticsController = AdminAnalyticsController;
 __decorate([
@@ -164,6 +201,23 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AdminAnalyticsController.prototype, "createAdmin", null);
+__decorate([
+    (0, common_1.Patch)('admins/:id/status'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], AdminAnalyticsController.prototype, "updateAdminStatus", null);
+__decorate([
+    (0, common_1.Delete)('admins/:id'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminAnalyticsController.prototype, "deleteAdmin", null);
 exports.AdminAnalyticsController = AdminAnalyticsController = __decorate([
     (0, swagger_1.ApiTags)('Admin'),
     (0, swagger_1.ApiBearerAuth)(),

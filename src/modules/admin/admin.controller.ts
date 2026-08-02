@@ -1,5 +1,5 @@
 import {  ApiTags , ApiBearerAuth } from '@nestjs/swagger';
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -141,5 +141,52 @@ export class AdminAnalyticsController {
     });
     
     return { message: 'Admin created successfully', data: admin };
+  }
+
+  @Patch('admins/:id/status')
+  async updateAdminStatus(@Param('id') id: string, @Body() dto: { is_active: boolean }) {
+    const admin = await this.prisma.user.update({
+      where: { id },
+      data: { is_active: dto.is_active },
+      select: { id: true, email: true, is_active: true }
+    });
+    return { message: 'Admin status updated successfully', data: admin };
+  }
+
+  @Delete('admins/:id')
+  async deleteAdmin(@Param('id') id: string) {
+    try {
+      // Delete restricted relations first to satisfy foreign key constraints
+      await this.prisma.review.deleteMany({
+        where: { user_id: id }
+      });
+
+      // Find all user addresses to delete associated orders
+      const userAddresses = await this.prisma.userAddress.findMany({ where: { user_id: id } });
+      const addressIds = userAddresses.map(a => a.id);
+
+      await this.prisma.order.deleteMany({
+        where: {
+          OR: [
+            { user_id: id },
+            { shipping_address_id: { in: addressIds } }
+          ]
+        }
+      });
+
+      await this.prisma.userProfile.deleteMany({
+        where: { user_id: id }
+      });
+      
+      await this.prisma.user.delete({
+        where: { id }
+      });
+      
+      return { message: 'Admin deleted successfully' };
+    } catch (error: any) {
+      console.error(error);
+      require('fs').writeFileSync('delete_error.log', error.stack || error.message);
+      throw new Error(error.message || 'Deletion failed');
+    }
   }
 }
