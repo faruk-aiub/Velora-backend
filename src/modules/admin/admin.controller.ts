@@ -36,8 +36,22 @@ export class AdminAnalyticsController {
       id: order.order_number,
       customer: order.user?.profile ? `${order.user.profile.first_name} ${order.user.profile.last_name}` : order.user.email,
       date: order.created_at.toISOString().split('T')[0],
-      total: `$${order.total_amount.toString()}`,
+      total: `৳${order.total_amount.toString()}`,
       status: order.status
+    }));
+
+    const topProductsRaw: any[] = await this.prisma.$queryRaw`
+      SELECT product_name, SUM(quantity) as total_sales, MAX(price) as max_price
+      FROM "OrderItem"
+      GROUP BY product_name
+      ORDER BY total_sales DESC
+      LIMIT 5
+    `;
+
+    const topProducts = topProductsRaw.map(p => ({
+      name: p.product_name,
+      sales: Number(p.total_sales || 0),
+      price: `৳${Number(p.max_price || 0)}`
     }));
 
     return { 
@@ -47,7 +61,8 @@ export class AdminAnalyticsController {
         totalOrders, 
         totalCustomers,
         totalProducts,
-        recentOrders
+        recentOrders,
+        topProducts
       } 
     };
   }
@@ -82,7 +97,40 @@ export class AdminAnalyticsController {
       total: total
     }));
 
-    return { data: { monthly } };
+    // Weekly Revenue (Last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const weeklyOrders = await this.prisma.order.findMany({
+      where: {
+        status: 'DELIVERED',
+        created_at: { gte: sevenDaysAgo }
+      },
+      select: { total_amount: true, created_at: true }
+    });
+
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const weeklyRevenueMap = new Map();
+    
+    // Initialize last 7 days
+    for (let i = 0; i < 7; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      weeklyRevenueMap.set(days[d.getDay()], 0);
+    }
+
+    weeklyOrders.forEach(order => {
+      const orderDate = new Date(order.created_at);
+      const dayName = days[orderDate.getDay()];
+      if (weeklyRevenueMap.has(dayName)) {
+        weeklyRevenueMap.set(dayName, weeklyRevenueMap.get(dayName) + Number(order.total_amount));
+      }
+    });
+
+    const weekly = Array.from(weeklyRevenueMap, ([name, revenue]) => ({ name, revenue }));
+
+    return { data: { monthly, weekly } };
   }
 
   @Get('user-stats')
