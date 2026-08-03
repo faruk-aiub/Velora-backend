@@ -1,16 +1,1 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-async function main() {
-  const products = await prisma.product.findMany({ 
-    where: { 
-      category: { 
-        OR: [
-            { slug: 'electronics-gadgets' },
-            { parent: { slug: 'electronics-gadgets' } }
-        ] 
-      } 
-    } 
-  });
-  console.log("Products found:", products.length);
-}
-main().catch(console.error).finally(() => prisma.$disconnect());
+const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); async function main() { const products = await prisma.product.findMany({ include: { category: true } }); console.log(products.map(p => ({ title: p.title, category: p.category?.name }))); } main().finally(() => prisma.$disconnect());

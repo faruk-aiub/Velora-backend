@@ -10,11 +10,11 @@ export declare class ContactService {
         updated_at: Date;
         first_name: string;
         last_name: string;
+        subject: string | null;
         user_id: string | null;
         message: string;
-        is_read: boolean;
         status: string;
-        subject: string | null;
+        is_read: boolean;
     }>;
     findAll(): Promise<{
         id: string;
@@ -23,11 +23,11 @@ export declare class ContactService {
         updated_at: Date;
         first_name: string;
         last_name: string;
+        subject: string | null;
         user_id: string | null;
         message: string;
-        is_read: boolean;
         status: string;
-        subject: string | null;
+        is_read: boolean;
     }[]>;
     getUnreadCount(): Promise<{
         count: number;
@@ -63,11 +63,11 @@ export declare class ContactService {
         updated_at: Date;
         first_name: string;
         last_name: string;
+        subject: string | null;
         user_id: string | null;
         message: string;
-        is_read: boolean;
         status: string;
-        subject: string | null;
+        is_read: boolean;
     }>;
     markAsRead(id: string): Promise<{
         id: string;
@@ -76,11 +76,11 @@ export declare class ContactService {
         updated_at: Date;
         first_name: string;
         last_name: string;
+        subject: string | null;
         user_id: string | null;
         message: string;
-        is_read: boolean;
         status: string;
-        subject: string | null;
+        is_read: boolean;
     }>;
     markAsUnread(id: string): Promise<{
         id: string;
@@ -89,11 +89,11 @@ export declare class ContactService {
         updated_at: Date;
         first_name: string;
         last_name: string;
+        subject: string | null;
         user_id: string | null;
         message: string;
-        is_read: boolean;
         status: string;
-        subject: string | null;
+        is_read: boolean;
     }>;
     markRepliesAsRead(messageId: string): Promise<import("@prisma/client").Prisma.BatchPayload>;
     remove(id: string): Promise<{
@@ -103,11 +103,11 @@ export declare class ContactService {
         updated_at: Date;
         first_name: string;
         last_name: string;
+        subject: string | null;
         user_id: string | null;
         message: string;
-        is_read: boolean;
         status: string;
-        subject: string | null;
+        is_read: boolean;
     }>;
     findMyMessages(userId: string): Promise<({
         _count: {
@@ -120,11 +120,11 @@ export declare class ContactService {
         updated_at: Date;
         first_name: string;
         last_name: string;
+        subject: string | null;
         user_id: string | null;
         message: string;
-        is_read: boolean;
         status: string;
-        subject: string | null;
+        is_read: boolean;
     })[]>;
     reply(messageId: string, senderId: string, messageText: string, isAdmin: boolean): Promise<{
         sender: {
@@ -149,10 +149,10 @@ export declare class ContactService {
         updated_at: Date;
         first_name: string;
         last_name: string;
+        subject: string | null;
         user_id: string | null;
         message: string;
-        is_read: boolean;
         status: string;
-        subject: string | null;
+        is_read: boolean;
     }>;
 }

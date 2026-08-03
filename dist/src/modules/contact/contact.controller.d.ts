@@ -16,11 +16,11 @@ export declare class ContactController {
             updated_at: Date;
             first_name: string;
             last_name: string;
+            subject: string | null;
             user_id: string | null;
             message: string;
-            is_read: boolean;
             status: string;
-            subject: string | null;
+            is_read: boolean;
         };
     }>;
     getMyMessages(req: any): Promise<{
@@ -35,11 +35,11 @@ export declare class ContactController {
             updated_at: Date;
             first_name: string;
             last_name: string;
+            subject: string | null;
             user_id: string | null;
             message: string;
-            is_read: boolean;
             status: string;
-            subject: string | null;
+            is_read: boolean;
         })[];
     }>;
     getUnreadCount(): Promise<{
@@ -77,11 +77,11 @@ export declare class ContactController {
             updated_at: Date;
             first_name: string;
             last_name: string;
+            subject: string | null;
             user_id: string | null;
             message: string;
-            is_read: boolean;
             status: string;
-            subject: string | null;
+            is_read: boolean;
         };
     }>;
     markRepliesAsRead(id: string, req: any): Promise<{
@@ -114,11 +114,11 @@ export declare class ContactController {
             updated_at: Date;
             first_name: string;
             last_name: string;
+            subject: string | null;
             user_id: string | null;
             message: string;
-            is_read: boolean;
             status: string;
-            subject: string | null;
+            is_read: boolean;
         }[];
     }>;
     updateStatus(id: string, dto: UpdateContactStatusDto): Promise<{
@@ -130,11 +130,11 @@ export declare class ContactController {
             updated_at: Date;
             first_name: string;
             last_name: string;
+            subject: string | null;
             user_id: string | null;
             message: string;
-            is_read: boolean;
             status: string;
-            subject: string | null;
+            is_read: boolean;
         };
     }>;
     markAsRead(id: string): Promise<{
@@ -146,11 +146,11 @@ export declare class ContactController {
             updated_at: Date;
             first_name: string;
             last_name: string;
+            subject: string | null;
             user_id: string | null;
             message: string;
-            is_read: boolean;
             status: string;
-            subject: string | null;
+            is_read: boolean;
         };
     }>;
     markAsUnread(id: string): Promise<{
@@ -162,11 +162,11 @@ export declare class ContactController {
             updated_at: Date;
             first_name: string;
             last_name: string;
+            subject: string | null;
             user_id: string | null;
             message: string;
-            is_read: boolean;
             status: string;
-            subject: string | null;
+            is_read: boolean;
         };
     }>;
     remove(id: string): Promise<{

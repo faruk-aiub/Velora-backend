@@ -26,19 +26,19 @@ export declare class OrdersService {
             quantity: number;
             product_name: string;
         }[];
+        status: import("@prisma/client").$Enums.OrderStatus;
         order_number: string;
         total_amount: import("@prisma/client-runtime-utils").Decimal;
-        status: import("@prisma/client").$Enums.OrderStatus;
         shipping_address: {
             address_line1: string;
             city: string;
             postal_code: string;
         };
         payments: {
+            amount: import("@prisma/client-runtime-utils").Decimal;
             status: import("@prisma/client").$Enums.PaymentStatus;
             provider: import("@prisma/client").$Enums.PaymentProvider;
             transaction_id: string | null;
-            amount: import("@prisma/client-runtime-utils").Decimal;
         }[];
         status_history: {
             created_at: Date;
@@ -48,14 +48,14 @@ export declare class OrdersService {
     }>;
     createOrder(userId: string, dto: CreateOrderDto): Promise<{
         id: string;
+        status: import("@prisma/client").$Enums.OrderStatus;
         order_number: string;
         total_amount: import("@prisma/client-runtime-utils").Decimal;
-        status: import("@prisma/client").$Enums.OrderStatus;
     }>;
     trackByNumber(orderNumber: string): Promise<{
         created_at: Date;
-        order_number: string;
         status: import("@prisma/client").$Enums.OrderStatus;
+        order_number: string;
         status_history: {
             created_at: Date;
             status: import("@prisma/client").$Enums.OrderStatus;
@@ -68,11 +68,11 @@ export declare class OrdersService {
         created_at: Date;
         updated_at: Date;
         user_id: string;
-        order_number: string;
         customer_name: string;
         contact_number: string;
-        total_amount: import("@prisma/client-runtime-utils").Decimal;
         status: import("@prisma/client").$Enums.OrderStatus;
+        order_number: string;
+        total_amount: import("@prisma/client-runtime-utils").Decimal;
         shipping_address_id: string;
     }>;
 }
