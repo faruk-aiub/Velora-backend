@@ -34,29 +34,29 @@ export declare class AdminAnalyticsController {
     }>;
     getAdmins(): Promise<{
         data: {
+            id: string;
+            email: string;
             role: import("@prisma/client").$Enums.Role;
             is_active: boolean;
-            id: string;
             created_at: Date;
-            email: string;
             profile: {
                 id: string;
-                user_id: string;
                 created_at: Date;
                 updated_at: Date;
                 first_name: string;
                 last_name: string;
                 phone: string | null;
                 avatar_url: string | null;
+                user_id: string;
             } | null;
         }[];
     }>;
     createAdmin(dto: any): Promise<{
         message: string;
         data: {
-            role: import("@prisma/client").$Enums.Role;
             id: string;
             email: string;
+            role: import("@prisma/client").$Enums.Role;
         };
     }>;
     updateAdminStatus(id: string, dto: {
@@ -64,9 +64,9 @@ export declare class AdminAnalyticsController {
     }): Promise<{
         message: string;
         data: {
-            is_active: boolean;
             id: string;
             email: string;
+            is_active: boolean;
         };
     }>;
     deleteAdmin(id: string): Promise<{
