@@ -72,17 +72,7 @@ let AdminAuthService = AdminAuthService_1 = class AdminAuthService {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
         const payload = { sub: user.id, email: user.email, role: user.role };
-        const accessToken = this.jwtService.sign(payload);
-        const refreshTokenPayload = { sub: user.id, type: 'refresh' };
-        const refreshTokenString = this.jwtService.sign(refreshTokenPayload, { expiresIn: '7d' });
-        const hashedRefreshToken = await argon2.hash(refreshTokenString);
-        await this.prisma.refreshToken.create({
-            data: {
-                user_id: user.id,
-                token_hash: hashedRefreshToken,
-                expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-            }
-        });
+        const accessToken = this.jwtService.sign(payload, { expiresIn: '7d' });
         await this.prisma.loginHistory.create({
             data: {
                 user_id: user.id,
@@ -92,7 +82,7 @@ let AdminAuthService = AdminAuthService_1 = class AdminAuthService {
         });
         const { password_hash, ...userWithoutPassword } = user;
         return {
-            tokens: { accessToken, refreshToken: refreshTokenString },
+            tokens: { accessToken },
             user: userWithoutPassword,
         };
     }

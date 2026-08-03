@@ -35,22 +35,7 @@ export class AdminAuthService {
     }
 
     const payload = { sub: user.id, email: user.email, role: user.role };
-    const accessToken = this.jwtService.sign(payload);
-    
-    // Create refresh token
-    const refreshTokenPayload = { sub: user.id, type: 'refresh' };
-    const refreshTokenString = this.jwtService.sign(refreshTokenPayload, { expiresIn: '7d' });
-    
-    // Hash refresh token to store in db
-    const hashedRefreshToken = await argon2.hash(refreshTokenString);
-    
-    await this.prisma.refreshToken.create({
-      data: {
-        user_id: user.id,
-        token_hash: hashedRefreshToken,
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-      }
-    });
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '7d' });
 
     // Save login history
     await this.prisma.loginHistory.create({
@@ -64,7 +49,7 @@ export class AdminAuthService {
     const { password_hash, ...userWithoutPassword } = user;
 
     return {
-      tokens: { accessToken, refreshToken: refreshTokenString },
+      tokens: { accessToken },
       user: userWithoutPassword,
     };
   }

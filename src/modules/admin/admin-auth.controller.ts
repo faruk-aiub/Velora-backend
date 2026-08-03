@@ -28,23 +28,20 @@ export class AdminAuthController {
     
     const { tokens, user } = await this.adminAuthService.login(loginDto, ip, ua);
     
-    // Set httpOnly cookie for refresh token
-    response.cookie('admin_refresh_token', tokens.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
-    return { message: 'Admin login successful', data: { accessToken: tokens.accessToken, user } };
+    return { 
+      message: 'Admin login successful', 
+      data: { 
+        accessToken: tokens.accessToken,
+        user 
+      } 
+    };
   }
 
   @Post('logout')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Admin logout' })
-  async logout(@Res({ passthrough: true }) response: Response) {
-    response.clearCookie('admin_refresh_token');
+  async logout() {
     return { message: 'Admin logout successful' };
   }
 

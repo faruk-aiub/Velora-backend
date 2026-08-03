@@ -32,16 +32,15 @@ let AdminAuthController = class AdminAuthController {
         const ip = request.ip || request.connection.remoteAddress || 'unknown';
         const ua = request.headers['user-agent'] || 'unknown';
         const { tokens, user } = await this.adminAuthService.login(loginDto, ip, ua);
-        response.cookie('admin_refresh_token', tokens.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
-        return { message: 'Admin login successful', data: { accessToken: tokens.accessToken, user } };
+        return {
+            message: 'Admin login successful',
+            data: {
+                accessToken: tokens.accessToken,
+                user
+            }
+        };
     }
-    async logout(response) {
-        response.clearCookie('admin_refresh_token');
+    async logout() {
         return { message: 'Admin logout successful' };
     }
     async changePassword(changePasswordDto, request) {
@@ -70,9 +69,8 @@ __decorate([
     (0, roles_decorator_1.Roles)('ADMIN'),
     (0, swagger_1.ApiOperation)({ summary: 'Admin logout' }),
     openapi.ApiResponse({ status: 201 }),
-    __param(0, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AdminAuthController.prototype, "logout", null);
 __decorate([

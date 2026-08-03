@@ -124,10 +124,10 @@ export declare class UsersController {
             login_history: {
                 id: string;
                 user_id: string;
+                login_time: Date;
                 ip_address: string | null;
                 device_info: string | null;
                 browser: string | null;
-                login_time: Date;
             }[];
         } & {
             id: string;

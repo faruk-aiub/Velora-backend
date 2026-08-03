@@ -48,7 +48,7 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
 const jwt_1 = require("@nestjs/jwt");
 const crypto = __importStar(require("crypto"));
-const firebase_config_1 = require("../../config/firebase.config");
+const argon2 = __importStar(require("argon2"));
 let AuthService = AuthService_1 = class AuthService {
     prisma;
     jwtService;
@@ -57,67 +57,61 @@ let AuthService = AuthService_1 = class AuthService {
         this.prisma = prisma;
         this.jwtService = jwtService;
     }
-    async firebaseLogin(idToken, ipAddress, userAgent) {
-        let decodedToken;
-        try {
-            decodedToken = await firebase_config_1.firebaseAuth.verifyIdToken(idToken);
-        }
-        catch (error) {
-            this.logger.error('Firebase token verification failed', error);
-            throw new common_1.UnauthorizedException('Invalid Firebase ID token');
-        }
-        const { email, uid, email_verified, name, picture } = decodedToken;
-        if (!email) {
-            throw new common_1.UnauthorizedException('Firebase account must have an email');
-        }
-        if (!email_verified) {
-            throw new common_1.UnauthorizedException('Please verify your email address before logging in');
-        }
-        let user = await this.prisma.user.findUnique({
-            where: { email },
-            include: { profile: true }
+    async register(registerDto) {
+        const existingUser = await this.prisma.user.findUnique({
+            where: { email: registerDto.email },
         });
-        if (!user) {
-            user = await this.prisma.user.create({
-                data: {
-                    email,
-                    auth_provider: 'GOOGLE',
-                    provider_id: uid,
-                    is_email_verified: true,
-                    profile: {
-                        create: {
-                            first_name: name ? name.split(' ')[0] : 'User',
-                            last_name: name ? name.split(' ').slice(1).join(' ') : '',
-                            avatar_url: picture || null,
-                        }
-                    }
-                },
-                include: { profile: true }
-            });
+        if (existingUser) {
+            throw new common_1.BadRequestException('Email is already in use');
         }
-        else {
-            if (!user.is_active) {
-                throw new common_1.UnauthorizedException('Account is disabled');
-            }
-            if (user.auth_provider === 'LOCAL' || user.provider_id !== uid) {
-                user = await this.prisma.user.update({
-                    where: { id: user.id },
-                    data: {
-                        auth_provider: 'GOOGLE',
-                        provider_id: uid,
-                        is_email_verified: true
+        const passwordHash = await argon2.hash(registerDto.password);
+        const user = await this.prisma.user.create({
+            data: {
+                email: registerDto.email,
+                password_hash: passwordHash,
+                auth_provider: 'LOCAL',
+                profile: {
+                    create: {
+                        first_name: registerDto.first_name,
+                        last_name: registerDto.last_name,
                     },
-                    include: { profile: true }
-                });
-            }
+                },
+            },
+            include: { profile: true },
+        });
+        const { password_hash, verification_token, reset_token, profile, ...safeUser } = user;
+        return {
+            ...safeUser,
+            first_name: profile?.first_name || '',
+            last_name: profile?.last_name || '',
+            avatar_url: profile?.avatar_url || null,
+            phone: profile?.phone || null,
+        };
+    }
+    async login(loginDto, ipAddress, userAgent) {
+        const user = await this.prisma.user.findUnique({
+            where: { email: loginDto.email },
+            include: { profile: true },
+        });
+        if (!user || !user.password_hash) {
+            this.logger.warn(`Failed login attempt for email: ${loginDto.email} from IP: ${ipAddress}`);
+            throw new common_1.UnauthorizedException('Invalid email or password');
+        }
+        if (!user.is_active) {
+            throw new common_1.UnauthorizedException('Account is disabled');
+        }
+        const isPasswordValid = await argon2.verify(user.password_hash, loginDto.password);
+        if (!isPasswordValid) {
+            this.logger.warn(`Failed login attempt (wrong password) for email: ${loginDto.email} from IP: ${ipAddress}`);
+            throw new common_1.UnauthorizedException('Invalid email or password');
         }
         await Promise.all([
             this.prisma.session.create({
-                data: { user_id: user.id, ip_address: ipAddress, user_agent: userAgent }
+                data: { user_id: user.id, ip_address: ipAddress, user_agent: userAgent },
             }),
             this.prisma.loginHistory.create({
-                data: { user_id: user.id, ip_address: ipAddress, browser: userAgent }
-            })
+                data: { user_id: user.id, ip_address: ipAddress, browser: userAgent },
+            }),
         ]);
         const tokens = await this.generateTokens(user.id, user.role);
         const { password_hash, verification_token, reset_token, profile, ...safeUser } = user;
@@ -129,50 +123,35 @@ let AuthService = AuthService_1 = class AuthService {
                 last_name: profile?.last_name || '',
                 avatar_url: profile?.avatar_url || null,
                 phone: profile?.phone || null,
-            }
+            },
         };
     }
-    async refreshTokens(oldRefreshToken) {
-        try {
-            const payload = await this.jwtService.verifyAsync(oldRefreshToken, {
-                secret: process.env.JWT_REFRESH_SECRET || 'super-secret-refresh-key',
-            });
-            const tokenHash = crypto.createHash('sha256').update(oldRefreshToken).digest('hex');
-            const dbToken = await this.prisma.refreshToken.findUnique({ where: { token_hash: tokenHash } });
-            if (!dbToken || dbToken.is_revoked || dbToken.expires_at < new Date()) {
-                throw new common_1.UnauthorizedException('Invalid refresh token');
-            }
-            await this.prisma.refreshToken.update({
-                where: { token_hash: tokenHash },
-                data: { is_revoked: true }
-            });
-            return this.generateTokens(payload.sub, payload.role);
+    async forgotPassword(forgotPasswordDto) {
+        const user = await this.prisma.user.findUnique({
+            where: { email: forgotPasswordDto.email },
+        });
+        if (!user) {
+            return { message: 'If an account exists, a reset link has been sent.' };
         }
-        catch (e) {
-            throw new common_1.UnauthorizedException('Invalid refresh token');
-        }
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const tokenExpires = new Date(Date.now() + 1000 * 60 * 60);
+        await this.prisma.user.update({
+            where: { id: user.id },
+            data: {
+                reset_token: resetToken,
+                reset_token_expires: tokenExpires,
+            },
+        });
+        this.logger.log(`Password reset token for ${user.email}: ${resetToken}`);
+        return { message: 'If an account exists, a reset link has been sent.' };
     }
     async generateTokens(userId, role) {
         const payload = { sub: userId, role };
-        const [accessToken, refreshToken] = await Promise.all([
-            this.jwtService.signAsync(payload, {
-                secret: process.env.JWT_SECRET || 'super-secret-jwt-key',
-                expiresIn: '15m'
-            }),
-            this.jwtService.signAsync(payload, {
-                secret: process.env.JWT_REFRESH_SECRET || 'super-secret-refresh-key',
-                expiresIn: '7d'
-            })
-        ]);
-        const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-        await this.prisma.refreshToken.create({
-            data: {
-                user_id: userId,
-                token_hash: tokenHash,
-                expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-            }
+        const accessToken = await this.jwtService.signAsync(payload, {
+            secret: process.env.JWT_SECRET || 'super-secret-jwt-key',
+            expiresIn: '7d'
         });
-        return { accessToken, refreshToken };
+        return { accessToken };
     }
 };
 exports.AuthService = AuthService;
