@@ -229,6 +229,7 @@ model Product {
   category_id String
 
   base_price  Float   @default(0)
+  discount_percent Float @default(0)
 
   is_active Boolean @default(true)
 

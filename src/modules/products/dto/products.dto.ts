@@ -31,6 +31,11 @@ export class CreateProductDto {
   @IsOptional()
   @IsNumber()
   base_price?: number;
+
+  @ApiProperty({ example: 10, required: false, description: 'Discount percentage (0-100)' })
+  @IsOptional()
+  @IsNumber()
+  discount_percent?: number;
 }
 
 export class UpdateProductDto {
@@ -57,6 +62,10 @@ export class UpdateProductDto {
   @IsOptional()
   @IsNumber()
   base_price?: number;
+
+  @IsOptional()
+  @IsNumber()
+  discount_percent?: number;
 }
 
 export class CreateVariantDto {

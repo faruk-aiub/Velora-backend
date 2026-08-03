@@ -20,8 +20,9 @@ class CreateProductDto {
     category_id;
     is_active;
     base_price;
+    discount_percent;
     static _OPENAPI_METADATA_FACTORY() {
-        return { title: { required: true, type: () => String }, description: { required: false, type: () => String }, brand_id: { required: false, type: () => String }, category_id: { required: true, type: () => String }, is_active: { required: false, type: () => Boolean }, base_price: { required: false, type: () => Number } };
+        return { title: { required: true, type: () => String }, description: { required: false, type: () => String }, brand_id: { required: false, type: () => String }, category_id: { required: true, type: () => String }, is_active: { required: false, type: () => Boolean }, base_price: { required: false, type: () => Number }, discount_percent: { required: false, type: () => Number } };
     }
 }
 exports.CreateProductDto = CreateProductDto;
@@ -61,6 +62,12 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], CreateProductDto.prototype, "base_price", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 10, required: false, description: 'Discount percentage (0-100)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreateProductDto.prototype, "discount_percent", void 0);
 class UpdateProductDto {
     title;
     description;
@@ -68,8 +75,9 @@ class UpdateProductDto {
     category_id;
     is_active;
     base_price;
+    discount_percent;
     static _OPENAPI_METADATA_FACTORY() {
-        return { title: { required: false, type: () => String }, description: { required: false, type: () => String }, brand_id: { required: false, type: () => String }, category_id: { required: false, type: () => String }, is_active: { required: false, type: () => Boolean }, base_price: { required: false, type: () => Number } };
+        return { title: { required: false, type: () => String }, description: { required: false, type: () => String }, brand_id: { required: false, type: () => String }, category_id: { required: false, type: () => String }, is_active: { required: false, type: () => Boolean }, base_price: { required: false, type: () => Number }, discount_percent: { required: false, type: () => Number } };
     }
 }
 exports.UpdateProductDto = UpdateProductDto;
@@ -103,6 +111,11 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], UpdateProductDto.prototype, "base_price", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], UpdateProductDto.prototype, "discount_percent", void 0);
 class CreateVariantDto {
     sku;
     price;

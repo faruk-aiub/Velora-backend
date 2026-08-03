@@ -127,6 +127,7 @@ export class ProductsService {
           title: true,
           slug: true,
           description: true,
+          discount_percent: true,
           category: { select: { id: true, name: true, slug: true } },
           brand: { select: { id: true, name: true } },
           images: { select: { id: true, url: true, alt_text: true, sort_order: true }, orderBy: { sort_order: 'asc' } },
@@ -157,6 +158,7 @@ export class ProductsService {
         slug: true,
         description: true,
         base_price: true,
+        discount_percent: true,
         category: { select: { id: true, name: true, slug: true } },
         brand: { select: { id: true, name: true } },
         images: { select: { id: true, url: true, alt_text: true, sort_order: true }, orderBy: { sort_order: 'asc' } },
@@ -193,6 +195,7 @@ export class ProductsService {
         category_id: dto.category_id,
         brand_id: dto.brand_id,
         base_price: dto.base_price !== undefined ? dto.base_price : 0,
+        discount_percent: dto.discount_percent !== undefined ? dto.discount_percent : 0,
         is_active: dto.is_active ?? true,
         variants: {
           create: {
@@ -233,6 +236,7 @@ export class ProductsService {
         category_id: dto.category_id,
         brand_id: dto.brand_id,
         ...(dto.base_price !== undefined && { base_price: dto.base_price }),
+        ...(dto.discount_percent !== undefined && { discount_percent: dto.discount_percent }),
         is_active: dto.is_active,
       }
     });

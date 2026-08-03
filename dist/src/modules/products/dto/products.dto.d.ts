@@ -5,6 +5,7 @@ export declare class CreateProductDto {
     category_id: string;
     is_active?: boolean;
     base_price?: number;
+    discount_percent?: number;
 }
 export declare class UpdateProductDto {
     title?: string;
@@ -13,6 +14,7 @@ export declare class UpdateProductDto {
     category_id?: string;
     is_active?: boolean;
     base_price?: number;
+    discount_percent?: number;
 }
 export declare class CreateVariantDto {
     sku: string;
