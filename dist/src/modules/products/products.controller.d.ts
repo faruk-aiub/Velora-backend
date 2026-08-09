@@ -13,13 +13,13 @@ export declare class ProductsController {
                 name: string;
                 slug: string;
             };
-            title: string;
-            description: string | null;
-            discount_percent: number;
             brand: {
                 id: string;
                 name: string;
             } | null;
+            description: string | null;
+            title: string;
+            discount_percent: number;
             variants: {
                 id: string;
                 inventory: {
@@ -49,14 +49,14 @@ export declare class ProductsController {
                 name: string;
                 slug: string;
             };
-            title: string;
-            description: string | null;
-            base_price: number;
-            discount_percent: number;
             brand: {
                 id: string;
                 name: string;
             } | null;
+            description: string | null;
+            title: string;
+            base_price: number;
+            discount_percent: number;
             variants: {
                 id: string;
                 inventory: {
@@ -85,8 +85,8 @@ export declare class ProductsController {
             updated_at: Date;
             deleted_at: Date | null;
             slug: string;
-            title: string;
             description: string | null;
+            title: string;
             brand_id: string | null;
             category_id: string;
             base_price: number;
@@ -102,8 +102,8 @@ export declare class ProductsController {
             updated_at: Date;
             deleted_at: Date | null;
             slug: string;
-            title: string;
             description: string | null;
+            title: string;
             brand_id: string | null;
             category_id: string;
             base_price: number;

@@ -22,10 +22,18 @@ const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const prisma_service_1 = require("../../database/prisma.service");
 let AdminAnalyticsController = class AdminAnalyticsController {
     prisma;
+    dashboardCache = { data: null, timestamp: 0 };
+    salesReportCache = { data: null, timestamp: 0 };
+    userStatsCache = { data: null, timestamp: 0 };
+    CACHE_TTL = 10000;
     constructor(prisma) {
         this.prisma = prisma;
     }
     async getDashboard() {
+        const now = Date.now();
+        if (this.dashboardCache.data && (now - this.dashboardCache.timestamp < this.CACHE_TTL)) {
+            return this.dashboardCache.data;
+        }
         const totalOrders = await this.prisma.order.count();
         const totalCustomers = await this.prisma.user.count({ where: { role: 'CUSTOMER' } });
         const totalProducts = await this.prisma.product.count({ where: { is_active: true } });
@@ -58,7 +66,7 @@ let AdminAnalyticsController = class AdminAnalyticsController {
             sales: Number(p.total_sales || 0),
             price: `৳${Number(p.max_price || 0)}`
         }));
-        return {
+        const result = {
             success: true,
             data: {
                 totalSales,
@@ -69,8 +77,14 @@ let AdminAnalyticsController = class AdminAnalyticsController {
                 topProducts
             }
         };
+        this.dashboardCache = { data: result, timestamp: now };
+        return result;
     }
     async getSalesReport() {
+        const now = Date.now();
+        if (this.salesReportCache.data && (now - this.salesReportCache.timestamp < this.CACHE_TTL)) {
+            return this.salesReportCache.data;
+        }
         const currentYear = new Date().getFullYear();
         const startOfYear = new Date(currentYear, 0, 1);
         const orders = await this.prisma.order.findMany({
@@ -117,9 +131,15 @@ let AdminAnalyticsController = class AdminAnalyticsController {
             }
         });
         const weekly = Array.from(weeklyRevenueMap, ([name, revenue]) => ({ name, revenue }));
-        return { data: { monthly, weekly } };
+        const result = { data: { monthly, weekly } };
+        this.salesReportCache = { data: result, timestamp: now };
+        return result;
     }
     async getUserStats() {
+        const now = Date.now();
+        if (this.userStatsCache.data && (now - this.userStatsCache.timestamp < this.CACHE_TTL)) {
+            return this.userStatsCache.data;
+        }
         const total = await this.prisma.user.count({ where: { role: 'CUSTOMER' } });
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -129,7 +149,9 @@ let AdminAnalyticsController = class AdminAnalyticsController {
                 created_at: { gte: thirtyDaysAgo }
             }
         });
-        return { data: { total, newThisMonth } };
+        const result = { data: { total, newThisMonth } };
+        this.userStatsCache = { data: result, timestamp: now };
+        return result;
     }
     async getAdmins() {
         const admins = await this.prisma.user.findMany({
@@ -147,7 +169,7 @@ let AdminAnalyticsController = class AdminAnalyticsController {
     }
     async createAdmin(dto) {
         const bcrypt = require('bcrypt');
-        const hashedPassword = await bcrypt.hash(dto.password, 10);
+        const hashedPassword = await bcrypt.hash(dto.password, 8);
         const admin = await this.prisma.user.create({
             data: {
                 email: dto.email,
@@ -205,21 +227,21 @@ let AdminAnalyticsController = class AdminAnalyticsController {
 exports.AdminAnalyticsController = AdminAnalyticsController;
 __decorate([
     (0, common_1.Get)('dashboard'),
-    openapi.ApiResponse({ status: 200 }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AdminAnalyticsController.prototype, "getDashboard", null);
 __decorate([
     (0, common_1.Get)('sales-report'),
-    openapi.ApiResponse({ status: 200 }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AdminAnalyticsController.prototype, "getSalesReport", null);
 __decorate([
     (0, common_1.Get)('user-stats'),
-    openapi.ApiResponse({ status: 200 }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)

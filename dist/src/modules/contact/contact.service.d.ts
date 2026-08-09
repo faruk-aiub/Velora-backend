@@ -11,8 +11,8 @@ export declare class ContactService {
         first_name: string;
         last_name: string;
         subject: string | null;
-        user_id: string | null;
         message: string;
+        user_id: string | null;
         status: string;
         is_read: boolean;
     }>;
@@ -24,8 +24,8 @@ export declare class ContactService {
         first_name: string;
         last_name: string;
         subject: string | null;
-        user_id: string | null;
         message: string;
+        user_id: string | null;
         status: string;
         is_read: boolean;
     }[]>;
@@ -64,8 +64,8 @@ export declare class ContactService {
         first_name: string;
         last_name: string;
         subject: string | null;
-        user_id: string | null;
         message: string;
+        user_id: string | null;
         status: string;
         is_read: boolean;
     }>;
@@ -77,8 +77,8 @@ export declare class ContactService {
         first_name: string;
         last_name: string;
         subject: string | null;
-        user_id: string | null;
         message: string;
+        user_id: string | null;
         status: string;
         is_read: boolean;
     }>;
@@ -90,8 +90,8 @@ export declare class ContactService {
         first_name: string;
         last_name: string;
         subject: string | null;
-        user_id: string | null;
         message: string;
+        user_id: string | null;
         status: string;
         is_read: boolean;
     }>;
@@ -104,8 +104,8 @@ export declare class ContactService {
         first_name: string;
         last_name: string;
         subject: string | null;
-        user_id: string | null;
         message: string;
+        user_id: string | null;
         status: string;
         is_read: boolean;
     }>;
@@ -121,8 +121,8 @@ export declare class ContactService {
         first_name: string;
         last_name: string;
         subject: string | null;
-        user_id: string | null;
         message: string;
+        user_id: string | null;
         status: string;
         is_read: boolean;
     })[]>;
@@ -150,8 +150,8 @@ export declare class ContactService {
         first_name: string;
         last_name: string;
         subject: string | null;
-        user_id: string | null;
         message: string;
+        user_id: string | null;
         status: string;
         is_read: boolean;
     }>;

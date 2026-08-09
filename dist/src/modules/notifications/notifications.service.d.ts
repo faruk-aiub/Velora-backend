@@ -21,10 +21,10 @@ export declare class NotificationsService {
     }): Promise<{
         id: string;
         created_at: Date;
-        title: string;
-        user_id: string;
         type: string;
+        title: string;
         message: string;
+        user_id: string;
         is_read: boolean;
         link_url: string | null;
     }>;

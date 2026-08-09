@@ -16,8 +16,8 @@ export declare class UsersService {
             id: string;
             created_at: Date;
             updated_at: Date;
-            user_id: string;
             type: import("@prisma/client").$Enums.AddressType;
+            user_id: string;
             address_line1: string;
             city: string;
             postal_code: string;
@@ -41,8 +41,8 @@ export declare class UsersService {
         id: string;
         created_at: Date;
         updated_at: Date;
-        user_id: string;
         type: import("@prisma/client").$Enums.AddressType;
+        user_id: string;
         address_line1: string;
         city: string;
         postal_code: string;
@@ -52,8 +52,8 @@ export declare class UsersService {
         id: string;
         created_at: Date;
         updated_at: Date;
-        user_id: string;
         type: import("@prisma/client").$Enums.AddressType;
+        user_id: string;
         address_line1: string;
         city: string;
         postal_code: string;
@@ -63,8 +63,8 @@ export declare class UsersService {
         id: string;
         created_at: Date;
         updated_at: Date;
-        user_id: string;
         type: import("@prisma/client").$Enums.AddressType;
+        user_id: string;
         address_line1: string;
         city: string;
         postal_code: string;
@@ -74,8 +74,8 @@ export declare class UsersService {
         id: string;
         created_at: Date;
         updated_at: Date;
-        user_id: string;
         type: import("@prisma/client").$Enums.AddressType;
+        user_id: string;
         address_line1: string;
         city: string;
         postal_code: string;
@@ -107,8 +107,8 @@ export declare class UsersService {
             id: string;
             created_at: Date;
             updated_at: Date;
-            user_id: string;
             type: import("@prisma/client").$Enums.AddressType;
+            user_id: string;
             address_line1: string;
             city: string;
             postal_code: string;
@@ -117,10 +117,10 @@ export declare class UsersService {
         login_history: {
             id: string;
             user_id: string;
-            login_time: Date;
             ip_address: string | null;
             device_info: string | null;
             browser: string | null;
+            login_time: Date;
         }[];
     } & {
         id: string;

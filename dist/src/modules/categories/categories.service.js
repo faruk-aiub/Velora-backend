@@ -15,41 +15,51 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CategoriesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const redis_service_1 = require("../../infrastructure/redis/redis.service");
 const slugify_1 = __importDefault(require("slugify"));
 let CategoriesService = class CategoriesService {
     prisma;
-    constructor(prisma) {
+    redis;
+    constructor(prisma, redis) {
         this.prisma = prisma;
+        this.redis = redis;
+    }
+    async invalidateCategoryCaches() {
+        await this.redis.delByPattern('cache:categories:*');
     }
     async getCategoryTree() {
-        const categories = await this.prisma.category.findMany({
-            where: { parent_id: null, deleted_at: null },
-            orderBy: { created_at: 'asc' },
-            include: {
-                children: {
-                    where: { deleted_at: null },
-                    orderBy: { created_at: 'asc' },
-                    include: {
-                        children: {
-                            where: { deleted_at: null },
-                            orderBy: { created_at: 'asc' }
+        return this.redis.getOrSet('cache:categories:tree', 300, async () => {
+            const categories = await this.prisma.category.findMany({
+                where: { parent_id: null, deleted_at: null },
+                orderBy: { created_at: 'asc' },
+                include: {
+                    children: {
+                        where: { deleted_at: null },
+                        orderBy: { created_at: 'asc' },
+                        include: {
+                            children: {
+                                where: { deleted_at: null },
+                                orderBy: { created_at: 'asc' }
+                            }
                         }
                     }
                 }
-            }
+            });
+            const agri = categories.find(c => c.name === 'Agricultural Products');
+            const others = categories.filter(c => c.name !== 'Agricultural Products');
+            return agri ? [agri, ...others] : others;
         });
-        const agri = categories.find(c => c.name === 'Agricultural Products');
-        const others = categories.filter(c => c.name !== 'Agricultural Products');
-        return agri ? [agri, ...others] : others;
     }
     async getCategories() {
-        const categories = await this.prisma.category.findMany({
-            where: { deleted_at: null },
-            orderBy: { created_at: 'asc' }
+        return this.redis.getOrSet('cache:categories:list', 300, async () => {
+            const categories = await this.prisma.category.findMany({
+                where: { deleted_at: null },
+                orderBy: { created_at: 'asc' }
+            });
+            const agri = categories.find(c => c.name === 'Agricultural Products');
+            const others = categories.filter(c => c.name !== 'Agricultural Products');
+            return agri ? [agri, ...others] : others;
         });
-        const agri = categories.find(c => c.name === 'Agricultural Products');
-        const others = categories.filter(c => c.name !== 'Agricultural Products');
-        return agri ? [agri, ...others] : others;
     }
     async createCategory(dto) {
         const slug = (0, slugify_1.default)(dto.name, { lower: true, strict: true });
@@ -63,7 +73,7 @@ let CategoriesService = class CategoriesService {
                 throw new common_1.NotFoundException('Parent category not found');
             }
         }
-        return this.prisma.category.create({
+        const category = await this.prisma.category.create({
             data: {
                 name: dto.name,
                 slug,
@@ -71,6 +81,8 @@ let CategoriesService = class CategoriesService {
                 image_url: dto.image_url
             }
         });
+        await this.invalidateCategoryCaches();
+        return category;
     }
     async updateCategory(id, dto) {
         const category = await this.prisma.category.findUnique({ where: { id } });
@@ -94,10 +106,12 @@ let CategoriesService = class CategoriesService {
         if (dto.image_url !== undefined) {
             dataToUpdate.image_url = dto.image_url === '' ? null : dto.image_url;
         }
-        return this.prisma.category.update({
+        const updated = await this.prisma.category.update({
             where: { id },
             data: dataToUpdate
         });
+        await this.invalidateCategoryCaches();
+        return updated;
     }
     async deleteCategory(id) {
         const category = await this.prisma.category.findUnique({ where: { id } });
@@ -107,15 +121,18 @@ let CategoriesService = class CategoriesService {
         if (children > 0) {
             throw new common_1.ConflictException('Cannot delete a category with active subcategories');
         }
-        return this.prisma.category.update({
+        const deleted = await this.prisma.category.update({
             where: { id },
             data: { deleted_at: new Date() }
         });
+        await this.invalidateCategoryCaches();
+        return deleted;
     }
 };
 exports.CategoriesService = CategoriesService;
 exports.CategoriesService = CategoriesService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        redis_service_1.RedisService])
 ], CategoriesService);
 //# sourceMappingURL=categories.service.js.map

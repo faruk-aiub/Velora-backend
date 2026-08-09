@@ -23,7 +23,7 @@ export class AuthService {
       throw new BadRequestException('Email is already in use');
     }
 
-    const passwordHash = await argon2.hash(registerDto.password);
+    const passwordHash = await argon2.hash(registerDto.password, { type: argon2.argon2id, memoryCost: 4096, timeCost: 2 });
 
     const user = await this.prisma.user.create({
       data: {
@@ -73,15 +73,15 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    // Save session & login history
-    await Promise.all([
+    // Save session & login history in the background (no await to speed up response)
+    Promise.all([
       this.prisma.session.create({
         data: { user_id: user.id, ip_address: ipAddress, user_agent: userAgent },
       }),
       this.prisma.loginHistory.create({
         data: { user_id: user.id, ip_address: ipAddress, browser: userAgent },
       }),
-    ]);
+    ]).catch(err => this.logger.error('Failed to save login history', err));
 
     const tokens = await this.generateTokens(user.id, user.role);
 

@@ -18,12 +18,12 @@ export declare class CouponsController {
             id: string;
             created_at: Date;
             updated_at: Date;
-            expires_at: Date | null;
             code: string;
             discount_type: import("@prisma/client").$Enums.DiscountType;
             discount_value: import("@prisma/client-runtime-utils").Decimal;
             min_order_value: import("@prisma/client-runtime-utils").Decimal | null;
             usage_limit: number | null;
+            expires_at: Date | null;
             used_count: number;
         };
     }>;

@@ -1,8 +1,11 @@
 import { PrismaService } from '../../database/prisma.service';
+import { RedisService } from '../../infrastructure/redis/redis.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 export declare class CategoriesService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly redis;
+    constructor(prisma: PrismaService, redis: RedisService);
+    private invalidateCategoryCaches;
     getCategoryTree(): Promise<({
         children: ({
             children: {

@@ -11,11 +11,20 @@ import { PrismaService } from '../../database/prisma.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
 export class AdminAnalyticsController {
+  private dashboardCache: { data: any; timestamp: number } = { data: null, timestamp: 0 };
+  private salesReportCache: { data: any; timestamp: number } = { data: null, timestamp: 0 };
+  private userStatsCache: { data: any; timestamp: number } = { data: null, timestamp: 0 };
+  private readonly CACHE_TTL = 10000; // 10s
 
   constructor(private readonly prisma: PrismaService) {}
 
   @Get('dashboard')
   async getDashboard() {
+    const now = Date.now();
+    if (this.dashboardCache.data && (now - this.dashboardCache.timestamp < this.CACHE_TTL)) {
+      return this.dashboardCache.data;
+    }
+
     const totalOrders = await this.prisma.order.count();
     const totalCustomers = await this.prisma.user.count({ where: { role: 'CUSTOMER' } });
     const totalProducts = await this.prisma.product.count({ where: { is_active: true } });
@@ -54,7 +63,7 @@ export class AdminAnalyticsController {
       price: `৳${Number(p.max_price || 0)}`
     }));
 
-    return { 
+    const result = { 
       success: true,
       data: { 
         totalSales, 
@@ -65,10 +74,18 @@ export class AdminAnalyticsController {
         topProducts
       } 
     };
+
+    this.dashboardCache = { data: result, timestamp: now };
+    return result;
   }
 
   @Get('sales-report')
   async getSalesReport() {
+    const now = Date.now();
+    if (this.salesReportCache.data && (now - this.salesReportCache.timestamp < this.CACHE_TTL)) {
+      return this.salesReportCache.data;
+    }
+
     // Group orders by month using raw query or manual JS aggregation.
     // Given Prisma's limitations with grouping by month dynamically across databases, we fetch this year's delivered orders and bucket them.
     const currentYear = new Date().getFullYear();
@@ -130,11 +147,18 @@ export class AdminAnalyticsController {
 
     const weekly = Array.from(weeklyRevenueMap, ([name, revenue]) => ({ name, revenue }));
 
-    return { data: { monthly, weekly } };
+    const result = { data: { monthly, weekly } };
+    this.salesReportCache = { data: result, timestamp: now };
+    return result;
   }
 
   @Get('user-stats')
   async getUserStats() {
+    const now = Date.now();
+    if (this.userStatsCache.data && (now - this.userStatsCache.timestamp < this.CACHE_TTL)) {
+      return this.userStatsCache.data;
+    }
+
     const total = await this.prisma.user.count({ where: { role: 'CUSTOMER' } });
     
     const thirtyDaysAgo = new Date();
@@ -147,7 +171,9 @@ export class AdminAnalyticsController {
       }
     });
 
-    return { data: { total, newThisMonth } };
+    const result = { data: { total, newThisMonth } };
+    this.userStatsCache = { data: result, timestamp: now };
+    return result;
   }
 
   @Get('admins')
@@ -171,7 +197,7 @@ export class AdminAnalyticsController {
     // In a real app, use proper DTO validation here
     // Also requires bcrypt for password hashing
     const bcrypt = require('bcrypt');
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(dto.password, 8);
     
     const admin = await this.prisma.user.create({
       data: {

@@ -37,14 +37,14 @@ export class AdminAuthService {
     const payload = { sub: user.id, email: user.email, role: user.role };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '7d' });
 
-    // Save login history
-    await this.prisma.loginHistory.create({
+    // Save login history in the background
+    this.prisma.loginHistory.create({
       data: {
         user_id: user.id,
         ip_address: ip,
         browser: userAgent,
       }
-    });
+    }).catch(err => this.logger.error('Failed to save admin login history', err));
 
     const { password_hash, ...userWithoutPassword } = user;
 
@@ -73,7 +73,7 @@ export class AdminAuthService {
       throw new UnauthorizedException('Invalid old password');
     }
 
-    const hashedNewPassword = await argon2.hash(newPassword);
+    const hashedNewPassword = await argon2.hash(newPassword, { type: argon2.argon2id, memoryCost: 4096, timeCost: 2 });
 
     await this.prisma.user.update({
       where: { id: userId },

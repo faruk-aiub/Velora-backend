@@ -1,46 +1,14 @@
 import { PrismaService } from '../../database/prisma.service';
 export declare class AdminAnalyticsController {
     private readonly prisma;
+    private dashboardCache;
+    private salesReportCache;
+    private userStatsCache;
+    private readonly CACHE_TTL;
     constructor(prisma: PrismaService);
-    getDashboard(): Promise<{
-        success: boolean;
-        data: {
-            totalSales: number;
-            totalOrders: number;
-            totalCustomers: number;
-            totalProducts: number;
-            recentOrders: {
-                id: string;
-                customer: string;
-                date: string;
-                total: string;
-                status: import("@prisma/client").$Enums.OrderStatus;
-            }[];
-            topProducts: {
-                name: any;
-                sales: number;
-                price: string;
-            }[];
-        };
-    }>;
-    getSalesReport(): Promise<{
-        data: {
-            monthly: {
-                name: string;
-                total: any;
-            }[];
-            weekly: {
-                name: any;
-                revenue: any;
-            }[];
-        };
-    }>;
-    getUserStats(): Promise<{
-        data: {
-            total: number;
-            newThisMonth: number;
-        };
-    }>;
+    getDashboard(): Promise<any>;
+    getSalesReport(): Promise<any>;
+    getUserStats(): Promise<any>;
     getAdmins(): Promise<{
         data: {
             id: string;

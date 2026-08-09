@@ -1,45 +1,57 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { RedisService } from '../../infrastructure/redis/redis.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 import slugify from 'slugify';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
+  ) {}
+
+  private async invalidateCategoryCaches() {
+    await this.redis.delByPattern('cache:categories:*');
+  }
 
   async getCategoryTree() {
-    // Fetch categories up to 3 levels deep (Root -> Child -> Grandchild)
-    const categories = await this.prisma.category.findMany({
-      where: { parent_id: null, deleted_at: null },
-      orderBy: { created_at: 'asc' },
-      include: {
-        children: {
-          where: { deleted_at: null },
-          orderBy: { created_at: 'asc' },
-          include: {
-            children: {
-              where: { deleted_at: null },
-              orderBy: { created_at: 'asc' }
+    return this.redis.getOrSet('cache:categories:tree', 300, async () => {
+      // Fetch categories up to 3 levels deep (Root -> Child -> Grandchild)
+      const categories = await this.prisma.category.findMany({
+        where: { parent_id: null, deleted_at: null },
+        orderBy: { created_at: 'asc' },
+        include: {
+          children: {
+            where: { deleted_at: null },
+            orderBy: { created_at: 'asc' },
+            include: {
+              children: {
+                where: { deleted_at: null },
+                orderBy: { created_at: 'asc' }
+              }
             }
           }
         }
-      }
-    });
+      });
 
-    const agri = categories.find(c => c.name === 'Agricultural Products');
-    const others = categories.filter(c => c.name !== 'Agricultural Products');
-    return agri ? [agri, ...others] : others;
+      const agri = categories.find(c => c.name === 'Agricultural Products');
+      const others = categories.filter(c => c.name !== 'Agricultural Products');
+      return agri ? [agri, ...others] : others;
+    });
   }
 
   async getCategories() {
-    const categories = await this.prisma.category.findMany({
-      where: { deleted_at: null },
+    return this.redis.getOrSet('cache:categories:list', 300, async () => {
+      const categories = await this.prisma.category.findMany({
+        where: { deleted_at: null },
       orderBy: { created_at: 'asc' }
     });
     
-    const agri = categories.find(c => c.name === 'Agricultural Products');
-    const others = categories.filter(c => c.name !== 'Agricultural Products');
-    return agri ? [agri, ...others] : others;
+      const agri = categories.find(c => c.name === 'Agricultural Products');
+      const others = categories.filter(c => c.name !== 'Agricultural Products');
+      return agri ? [agri, ...others] : others;
+    });
   }
 
   async createCategory(dto: CreateCategoryDto) {
@@ -59,7 +71,7 @@ export class CategoriesService {
       }
     }
 
-    return this.prisma.category.create({
+    const category = await this.prisma.category.create({
       data: {
         name: dto.name,
         slug,
@@ -67,6 +79,8 @@ export class CategoriesService {
         image_url: dto.image_url
       }
     });
+    await this.invalidateCategoryCaches();
+    return category;
   }
 
   async updateCategory(id: string, dto: UpdateCategoryDto) {
@@ -95,10 +109,12 @@ export class CategoriesService {
       dataToUpdate.image_url = dto.image_url === '' ? null : dto.image_url;
     }
 
-    return this.prisma.category.update({
+    const updated = await this.prisma.category.update({
       where: { id },
       data: dataToUpdate
     });
+    await this.invalidateCategoryCaches();
+    return updated;
   }
 
   async deleteCategory(id: string) {
@@ -111,9 +127,11 @@ export class CategoriesService {
       throw new ConflictException('Cannot delete a category with active subcategories');
     }
 
-    return this.prisma.category.update({
+    const deleted = await this.prisma.category.update({
       where: { id },
       data: { deleted_at: new Date() }
     });
+    await this.invalidateCategoryCaches();
+    return deleted;
   }
 }

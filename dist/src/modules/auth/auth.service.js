@@ -64,7 +64,7 @@ let AuthService = AuthService_1 = class AuthService {
         if (existingUser) {
             throw new common_1.BadRequestException('Email is already in use');
         }
-        const passwordHash = await argon2.hash(registerDto.password);
+        const passwordHash = await argon2.hash(registerDto.password, { type: argon2.argon2id, memoryCost: 4096, timeCost: 2 });
         const user = await this.prisma.user.create({
             data: {
                 email: registerDto.email,
@@ -105,14 +105,14 @@ let AuthService = AuthService_1 = class AuthService {
             this.logger.warn(`Failed login attempt (wrong password) for email: ${loginDto.email} from IP: ${ipAddress}`);
             throw new common_1.UnauthorizedException('Invalid email or password');
         }
-        await Promise.all([
+        Promise.all([
             this.prisma.session.create({
                 data: { user_id: user.id, ip_address: ipAddress, user_agent: userAgent },
             }),
             this.prisma.loginHistory.create({
                 data: { user_id: user.id, ip_address: ipAddress, browser: userAgent },
             }),
-        ]);
+        ]).catch(err => this.logger.error('Failed to save login history', err));
         const tokens = await this.generateTokens(user.id, user.role);
         const { password_hash, verification_token, reset_token, profile, ...safeUser } = user;
         return {
