@@ -41,7 +41,7 @@ let CartService = class CartService {
             });
         }
         const total_amount = cart.items.reduce((total, item) => {
-            const price = Number(item.variant.compare_price || item.variant.price);
+            const price = Number(item.variant.price);
             return total + (price * item.quantity);
         }, 0);
         return {

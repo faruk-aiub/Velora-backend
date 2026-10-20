@@ -11,8 +11,8 @@ export declare class NotificationsController {
         data: {
             id: string;
             created_at: Date;
-            type: string;
             title: string;
+            type: string;
             message: string;
             user_id: string;
             is_read: boolean;
@@ -46,8 +46,8 @@ export declare class NotificationsController {
         } & {
             id: string;
             created_at: Date;
-            type: string;
             title: string;
+            type: string;
             message: string;
             user_id: string;
             is_read: boolean;

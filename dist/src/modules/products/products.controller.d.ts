@@ -17,19 +17,19 @@ export declare class ProductsController {
                 id: string;
                 name: string;
             } | null;
-            description: string | null;
             title: string;
+            description: string | null;
             discount_percent: number;
             variants: {
                 id: string;
-                inventory: {
-                    quantity: number;
-                    reserved_quantity: number;
-                } | null;
                 sku: string;
                 price: import("@prisma/client-runtime-utils").Decimal;
                 compare_price: import("@prisma/client-runtime-utils").Decimal | null;
                 attributes: import("@prisma/client/runtime/client").JsonValue;
+                inventory: {
+                    quantity: number;
+                    reserved_quantity: number;
+                } | null;
             }[];
             images: {
                 url: string;
@@ -53,20 +53,20 @@ export declare class ProductsController {
                 id: string;
                 name: string;
             } | null;
-            description: string | null;
             title: string;
+            description: string | null;
             base_price: number;
             discount_percent: number;
             variants: {
                 id: string;
-                inventory: {
-                    quantity: number;
-                    reserved_quantity: number;
-                } | null;
                 sku: string;
                 price: import("@prisma/client-runtime-utils").Decimal;
                 compare_price: import("@prisma/client-runtime-utils").Decimal | null;
                 attributes: import("@prisma/client/runtime/client").JsonValue;
+                inventory: {
+                    quantity: number;
+                    reserved_quantity: number;
+                } | null;
             }[];
             images: {
                 url: string;
@@ -85,12 +85,12 @@ export declare class ProductsController {
             updated_at: Date;
             deleted_at: Date | null;
             slug: string;
-            description: string | null;
             title: string;
-            brand_id: string | null;
-            category_id: string;
+            description: string | null;
             base_price: number;
             discount_percent: number;
+            brand_id: string | null;
+            category_id: string;
         };
     }>;
     update(id: string, updateDto: UpdateProductDto): Promise<{
@@ -102,12 +102,12 @@ export declare class ProductsController {
             updated_at: Date;
             deleted_at: Date | null;
             slug: string;
-            description: string | null;
             title: string;
-            brand_id: string | null;
-            category_id: string;
+            description: string | null;
             base_price: number;
             discount_percent: number;
+            brand_id: string | null;
+            category_id: string;
         };
     }>;
     delete(id: string): Promise<{
@@ -119,9 +119,9 @@ export declare class ProductsController {
             inventory: {
                 id: string;
                 updated_at: Date;
-                product_variant_id: string;
                 quantity: number;
                 reserved_quantity: number;
+                product_variant_id: string;
             } | null;
         } & {
             id: string;

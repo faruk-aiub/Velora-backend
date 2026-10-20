@@ -45,7 +45,6 @@ let ProductsController = class ProductsController {
         return { message: 'Product created', data: product };
     }
     async update(id, updateDto) {
-        console.log('UPDATE DTO RECEIVED:', updateDto);
         const product = await this.productsService.update(id, updateDto);
         return { message: 'Product updated', data: product };
     }

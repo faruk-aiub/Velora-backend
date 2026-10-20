@@ -28,7 +28,7 @@ let CategoriesService = class CategoriesService {
         await this.redis.delByPattern('cache:categories:*');
     }
     async getCategoryTree() {
-        return this.redis.getOrSet('cache:categories:tree', 300, async () => {
+        return this.redis.getOrSet('cache:categories:tree', 3600, async () => {
             const categories = await this.prisma.category.findMany({
                 where: { parent_id: null, deleted_at: null },
                 orderBy: { created_at: 'asc' },
@@ -51,7 +51,7 @@ let CategoriesService = class CategoriesService {
         });
     }
     async getCategories() {
-        return this.redis.getOrSet('cache:categories:list', 300, async () => {
+        return this.redis.getOrSet('cache:categories:list', 3600, async () => {
             const categories = await this.prisma.category.findMany({
                 where: { deleted_at: null },
                 orderBy: { created_at: 'asc' }

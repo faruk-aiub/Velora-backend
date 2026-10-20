@@ -1,14 +1,34 @@
-node_modules
+# Dependencies
+/node_modules
+node_modules/
 
+# Build Output
+dist/
+/dist
+
+# Generated Prisma Client
 /generated/prisma
 
+# Environment Variables
 .env
 .env.*
 !.env.example
-.env
-.env.*
 
-# Ignore uploaded files
-uploads/
-/uploads/*
+# Uploaded Files
+uploads/*
 !uploads/.gitkeep
+
+# System & OS Files
+.DS_Store
+Thumbs.db
+
+# Logs & Debugging
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test & Coverage
+/coverage
+/.nyc_output

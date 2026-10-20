@@ -29,7 +29,7 @@ let AuthController = class AuthController {
         return { message: 'Registration successful', data: user };
     }
     async login(loginDto, request, response) {
-        const ip = request.ip || request.connection.remoteAddress || 'unknown';
+        const ip = request.ip || request.socket?.remoteAddress || 'unknown';
         const ua = request.headers['user-agent'] || 'unknown';
         const { tokens, user } = await this.authService.login(loginDto, ip, ua);
         return {

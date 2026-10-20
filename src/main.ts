@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import * as express from 'express';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import compression from 'compression';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true });
@@ -18,8 +19,9 @@ async function bootstrap() {
   // Serve static files reliably via express static (bypassing Nest router quirks)
   app.getHttpAdapter().getInstance().use('/uploads', express.static(join(process.cwd(), 'uploads')));
 
-  // Security
+  // Security & Optimization
   app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+  app.use(compression());
   app.enableCors({
     origin: true, // Echoes the requesting origin (required when credentials: true)
     credentials: true,
@@ -51,7 +53,7 @@ async function bootstrap() {
   });
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   console.log(`Application is running on: http://localhost:${port}/api/v1`);
   console.log(`Swagger API Documentation is running on: http://localhost:${port}/api/docs`);
 }

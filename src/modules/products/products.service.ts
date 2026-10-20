@@ -1,5 +1,4 @@
-// Triggering backend restart to load new Prisma client
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, OnModuleInit, Logger } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { RedisService } from '../../infrastructure/redis/redis.service';
 import { getPaginationParams, createPaginationResponse, PaginatedResponse } from '../../common/utils/pagination.util';
@@ -7,14 +6,59 @@ import slugify from 'slugify';
 import { CreateProductDto, UpdateProductDto, CreateVariantDto, UpdateVariantDto, CreateImageDto } from './dto/products.dto';
 
 @Injectable()
-export class ProductsService {
+export class ProductsService implements OnModuleInit {
+  private readonly logger = new Logger(ProductsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
   ) {}
 
+  async onModuleInit() {
+    // Proactively pre-warm detail cache for all products in background
+    setTimeout(() => {
+      this.warmProductDetailsCache().catch((err) => {
+        this.logger.warn(`Failed to warm product cache: ${err.message}`);
+      });
+    }, 500);
+  }
+
+  async warmProductDetailsCache() {
+    this.logger.log('Starting proactive product detail cache warm-up...');
+    const products = await this.prisma.product.findMany({
+      where: { is_active: true, deleted_at: null },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        discount_percent: true,
+        category: { select: { id: true, name: true, slug: true } },
+        brand: { select: { id: true, name: true } },
+        images: { select: { id: true, url: true, alt_text: true, sort_order: true }, orderBy: { sort_order: 'asc' } },
+        variants: {
+          select: {
+            id: true,
+            sku: true,
+            price: true,
+            compare_price: true,
+            attributes: true,
+            inventory: { select: { quantity: true, reserved_quantity: true } }
+          }
+        }
+      }
+    });
+
+    for (const product of products) {
+      const cacheKey = `cache:products:detail:${product.slug}`;
+      await this.redis.set(cacheKey, product, 86400); // 24 hours
+    }
+    this.logger.log(`Successfully warmed cache for ${products.length} products!`);
+  }
+
   private async invalidateProductCaches() {
     await this.redis.delByPattern('cache:products:*');
+    this.warmProductDetailsCache().catch(() => {});
   }
 
   // --- QUERY APIs ---
@@ -35,7 +79,8 @@ export class ProductsService {
     // Create deterministic cache key
     const cacheKey = `cache:products:list:cat_${categoryId || 'all'}:br_${brandId || 'all'}:min_${minPrice || 0}:max_${maxPrice || 'inf'}:s_${sort || 'default'}:q_${search || 'none'}:p_${page}:l_${limit}:admin_${isAdmin}`;
     
-    return this.redis.getOrSet(cacheKey, 300, async () => {
+    // Cache for 1 hour with automatic invalidation on updates
+    return this.redis.getOrSet(cacheKey, 3600, async () => {
       let sortField = 'created_at';
       let sortOrder = 'desc';
 
@@ -89,8 +134,6 @@ export class ProductsService {
         ];
       }
 
-      console.log('EXECUTING PRISMA QUERY WITH WHERE CLAUSE:', JSON.stringify(whereClause, null, 2));
-
       const [products, total] = await Promise.all([
         this.prisma.product.findMany({
           where: whereClause,
@@ -119,7 +162,7 @@ export class ProductsService {
   async findOneBySlug(slug: string) {
     const cacheKey = `cache:products:detail:${slug}`;
 
-    return this.redis.getOrSet(cacheKey, 300, async () => {
+    return this.redis.getOrSet(cacheKey, 3600, async () => {
       const product = await this.prisma.product.findUnique({
         where: { slug, is_active: true, deleted_at: null },
         select: {

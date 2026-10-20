@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const core_1 = require("@nestjs/core");
 const throttler_1 = require("@nestjs/throttler");
+const bullmq_1 = require("@nestjs/bullmq");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const mail_module_1 = require("./modules/mail/mail.module");
@@ -48,6 +49,36 @@ exports.AppModule = AppModule = __decorate([
                     ttl: 60000,
                     limit: 60,
                 }]),
+            bullmq_1.BullModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                useFactory: (configService) => {
+                    const redisUrl = configService.get('REDIS_URL') || process.env.REDIS_URL;
+                    let connection = {
+                        host: configService.get('REDIS_HOST', 'localhost'),
+                        port: configService.get('REDIS_PORT', 6379),
+                        maxRetriesPerRequest: null,
+                        enableReadyCheck: false,
+                        retryStrategy: (times) => Math.min(times * 1000, 10000),
+                    };
+                    if (redisUrl) {
+                        try {
+                            const parsed = new URL(redisUrl);
+                            connection = {
+                                ...connection,
+                                host: parsed.hostname || connection.host,
+                                port: parsed.port ? Number(parsed.port) : connection.port,
+                                username: parsed.username || undefined,
+                                password: parsed.password || undefined,
+                                db: parsed.pathname && parsed.pathname !== '/' ? Number(parsed.pathname.slice(1)) : 0,
+                            };
+                        }
+                        catch {
+                        }
+                    }
+                    return { connection };
+                },
+                inject: [config_1.ConfigService],
+            }),
             prisma_module_1.PrismaModule,
             redis_module_1.RedisModule,
             admin_module_1.AdminModule,

@@ -21,8 +21,8 @@ export declare class NotificationsService {
     }): Promise<{
         id: string;
         created_at: Date;
-        type: string;
         title: string;
+        type: string;
         message: string;
         user_id: string;
         is_read: boolean;

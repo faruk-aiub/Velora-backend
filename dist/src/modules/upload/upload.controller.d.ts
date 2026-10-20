@@ -1,5 +1,5 @@
 export declare class UploadController {
-    uploadFile(file: Express.Multer.File): {
+    uploadFile(file: Express.Multer.File): Promise<{
         message: string;
         data: {
             url: string;
@@ -7,5 +7,5 @@ export declare class UploadController {
             mimetype: string;
             size: number;
         };
-    };
+    }>;
 }

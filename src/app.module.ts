@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { BullModule } from '@nestjs/bullmq';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MailModule } from './modules/mail/mail.module';
@@ -38,6 +39,38 @@ import { ContactModule } from './modules/contact/contact.module';
       ttl: 60000,
       limit: 60, // General limit: 100 requests per minute
     }]),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        const redisUrl = configService.get<string>('REDIS_URL') || process.env.REDIS_URL;
+        let connection: any = {
+          host: configService.get<string>('REDIS_HOST', 'localhost'),
+          port: configService.get<number>('REDIS_PORT', 6379),
+          maxRetriesPerRequest: null,
+          enableReadyCheck: false,
+          retryStrategy: (times: number) => Math.min(times * 1000, 10000),
+        };
+
+        if (redisUrl) {
+          try {
+            const parsed = new URL(redisUrl);
+            connection = {
+              ...connection,
+              host: parsed.hostname || connection.host,
+              port: parsed.port ? Number(parsed.port) : connection.port,
+              username: parsed.username || undefined,
+              password: parsed.password || undefined,
+              db: parsed.pathname && parsed.pathname !== '/' ? Number(parsed.pathname.slice(1)) : 0,
+            };
+          } catch {
+            // fallback to default connection
+          }
+        }
+
+        return { connection };
+      },
+      inject: [ConfigService],
+    }),
     PrismaModule,
     RedisModule,
     AdminModule,

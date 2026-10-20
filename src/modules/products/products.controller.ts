@@ -86,7 +86,6 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   async update(@Param('id') id: string, @Body() updateDto: UpdateProductDto) {
-    console.log('UPDATE DTO RECEIVED:', updateDto);
     const product = await this.productsService.update(id, updateDto);
     return { message: 'Product updated', data: product };
   }

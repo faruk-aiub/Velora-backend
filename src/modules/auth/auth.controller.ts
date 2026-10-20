@@ -25,7 +25,7 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
   ) {
-    const ip = request.ip || request.connection.remoteAddress || 'unknown';
+    const ip = request.ip || request.socket?.remoteAddress || 'unknown';
     const ua = request.headers['user-agent'] || 'unknown';
     
     const { tokens, user } = await this.authService.login(loginDto, ip, ua);

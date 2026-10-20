@@ -1,9 +1,11 @@
-import { ConfigService } from '@nestjs/config';
-export declare class MailService {
-    private configService;
-    private transporter;
+import { OnModuleInit } from '@nestjs/common';
+import { Queue } from 'bullmq';
+export declare class MailService implements OnModuleInit {
+    private mailQueue;
     private readonly logger;
-    constructor(configService: ConfigService);
+    private lastLoggedErrorTime;
+    constructor(mailQueue: Queue);
+    onModuleInit(): void;
     sendPasswordResetEmail(to: string, token: string): Promise<void>;
     sendVerificationEmail(to: string, token: string): Promise<void>;
 }

@@ -117,7 +117,7 @@ async function main() {
       data: {
         name: catData.name,
         slug: generateSlug(catData.name),
-        image_url: `https://loremflickr.com/800/600/${catData.imageQuery}?random=0`
+        image_url: `https://picsum.photos/seed/${generateSlug(catData.name)}/800/600`
       }
     });
 
@@ -161,7 +161,7 @@ async function main() {
             },
             images: {
               create: [
-                { url: `https://loremflickr.com/800/1000/${subName.toLowerCase().replace(/[^a-z0-9]+/g, ',')}?random=${Math.floor(Math.random() * 10000)}`, alt_text: title, sort_order: 0 },
+                { url: `https://picsum.photos/seed/${Math.floor(Math.random() * 10000)}/800/1000`, alt_text: title, sort_order: 0 },
               ]
             }
           }

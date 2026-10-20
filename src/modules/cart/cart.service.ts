@@ -33,7 +33,7 @@ export class CartService {
 
     // Calculate dynamic total price
     const total_amount = cart.items.reduce((total, item) => {
-      const price = Number(item.variant.compare_price || item.variant.price);
+      const price = Number(item.variant.price);
       return total + (price * item.quantity);
     }, 0);
 

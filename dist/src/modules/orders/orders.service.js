@@ -117,7 +117,7 @@ let OrdersService = class OrdersService {
                         reserved_quantity: { increment: item.quantity }
                     }
                 });
-                const activePrice = Number(variant.compare_price || variant.price);
+                const activePrice = Number(variant.price);
                 const itemTotal = activePrice * item.quantity;
                 totalAmount += itemTotal;
                 orderItemsToCreate.push({

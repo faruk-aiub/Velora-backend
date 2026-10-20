@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var ProductsService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductsService = void 0;
 const common_1 = require("@nestjs/common");
@@ -18,20 +19,60 @@ const prisma_service_1 = require("../../database/prisma.service");
 const redis_service_1 = require("../../infrastructure/redis/redis.service");
 const pagination_util_1 = require("../../common/utils/pagination.util");
 const slugify_1 = __importDefault(require("slugify"));
-let ProductsService = class ProductsService {
+let ProductsService = ProductsService_1 = class ProductsService {
     prisma;
     redis;
+    logger = new common_1.Logger(ProductsService_1.name);
     constructor(prisma, redis) {
         this.prisma = prisma;
         this.redis = redis;
     }
+    async onModuleInit() {
+        setTimeout(() => {
+            this.warmProductDetailsCache().catch((err) => {
+                this.logger.warn(`Failed to warm product cache: ${err.message}`);
+            });
+        }, 500);
+    }
+    async warmProductDetailsCache() {
+        this.logger.log('Starting proactive product detail cache warm-up...');
+        const products = await this.prisma.product.findMany({
+            where: { is_active: true, deleted_at: null },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                description: true,
+                discount_percent: true,
+                category: { select: { id: true, name: true, slug: true } },
+                brand: { select: { id: true, name: true } },
+                images: { select: { id: true, url: true, alt_text: true, sort_order: true }, orderBy: { sort_order: 'asc' } },
+                variants: {
+                    select: {
+                        id: true,
+                        sku: true,
+                        price: true,
+                        compare_price: true,
+                        attributes: true,
+                        inventory: { select: { quantity: true, reserved_quantity: true } }
+                    }
+                }
+            }
+        });
+        for (const product of products) {
+            const cacheKey = `cache:products:detail:${product.slug}`;
+            await this.redis.set(cacheKey, product, 86400);
+        }
+        this.logger.log(`Successfully warmed cache for ${products.length} products!`);
+    }
     async invalidateProductCaches() {
         await this.redis.delByPattern('cache:products:*');
+        this.warmProductDetailsCache().catch(() => { });
     }
     async findAll(page = 1, limit = 10, categoryId, brandId, minPrice, maxPrice, sort, search, isAdmin = false) {
         const { skip, take } = (0, pagination_util_1.getPaginationParams)(page, limit);
         const cacheKey = `cache:products:list:cat_${categoryId || 'all'}:br_${brandId || 'all'}:min_${minPrice || 0}:max_${maxPrice || 'inf'}:s_${sort || 'default'}:q_${search || 'none'}:p_${page}:l_${limit}:admin_${isAdmin}`;
-        return this.redis.getOrSet(cacheKey, 300, async () => {
+        return this.redis.getOrSet(cacheKey, 3600, async () => {
             let sortField = 'created_at';
             let sortOrder = 'desc';
             if (sort) {
@@ -79,7 +120,6 @@ let ProductsService = class ProductsService {
                     { description: { contains: search, mode: 'insensitive' } }
                 ];
             }
-            console.log('EXECUTING PRISMA QUERY WITH WHERE CLAUSE:', JSON.stringify(whereClause, null, 2));
             const [products, total] = await Promise.all([
                 this.prisma.product.findMany({
                     where: whereClause,
@@ -105,7 +145,7 @@ let ProductsService = class ProductsService {
     }
     async findOneBySlug(slug) {
         const cacheKey = `cache:products:detail:${slug}`;
-        return this.redis.getOrSet(cacheKey, 300, async () => {
+        return this.redis.getOrSet(cacheKey, 3600, async () => {
             const product = await this.prisma.product.findUnique({
                 where: { slug, is_active: true, deleted_at: null },
                 select: {
@@ -323,7 +363,7 @@ let ProductsService = class ProductsService {
     }
 };
 exports.ProductsService = ProductsService;
-exports.ProductsService = ProductsService = __decorate([
+exports.ProductsService = ProductsService = ProductsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         redis_service_1.RedisService])

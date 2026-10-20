@@ -45,11 +45,13 @@ const helmet_1 = __importDefault(require("helmet"));
 const express = __importStar(require("express"));
 const response_interceptor_1 = require("./common/interceptors/response.interceptor");
 const http_exception_filter_1 = require("./common/filters/http-exception.filter");
+const compression_1 = __importDefault(require("compression"));
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule, { rawBody: true });
     app.setGlobalPrefix('api/v1');
     app.getHttpAdapter().getInstance().use('/uploads', express.static((0, path_1.join)(process.cwd(), 'uploads')));
     app.use((0, helmet_1.default)({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+    app.use((0, compression_1.default)());
     app.enableCors({
         origin: true,
         credentials: true,
@@ -72,7 +74,7 @@ async function bootstrap() {
         customSiteTitle: 'Velora API Docs',
     });
     const port = process.env.PORT || 3000;
-    await app.listen(port);
+    await app.listen(port, '0.0.0.0');
     console.log(`Application is running on: http://localhost:${port}/api/v1`);
     console.log(`Swagger API Documentation is running on: http://localhost:${port}/api/docs`);
 }

@@ -248,6 +248,7 @@ model Product {
   @@index([slug])
   @@index([category_id])
   @@index([brand_id])
+  @@index([created_at])
 }
 
 model ProductVariant {
