@@ -22,7 +22,9 @@ export class ProductsController {
     @Query('max_price') maxPrice?: number,
     @Query('sort') sort?: string,
     @Query('q') q?: string,
+    @Query('search') search?: string,
   ) {
+    const searchTerm = q || search;
     return this.productsService.findAll(
       page ? Number(page) : 1, 
       limit ? Number(limit) : 10, 
@@ -31,7 +33,7 @@ export class ProductsController {
       minPrice ? Number(minPrice) : undefined, 
       maxPrice ? Number(maxPrice) : undefined,
       sort,
-      q
+      searchTerm
     );
   }
 
@@ -52,7 +54,9 @@ export class ProductsController {
     @Query('category_id') categoryId?: string,
     @Query('brand_id') brandId?: string,
     @Query('q') q?: string,
+    @Query('search') search?: string,
   ) {
+    const searchTerm = q || search;
     return this.productsService.findAll(
       page ? Number(page) : 1,
       limit ? Number(limit) : 10,
@@ -61,7 +65,7 @@ export class ProductsController {
       undefined,
       undefined,
       undefined,
-      q,
+      searchTerm,
       true // isAdmin
     );
   }

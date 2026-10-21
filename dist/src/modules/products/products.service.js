@@ -117,7 +117,9 @@ let ProductsService = ProductsService_1 = class ProductsService {
             if (search) {
                 whereClause.OR = [
                     { title: { contains: search, mode: 'insensitive' } },
-                    { description: { contains: search, mode: 'insensitive' } }
+                    { description: { contains: search, mode: 'insensitive' } },
+                    { brand: { is: { name: { contains: search, mode: 'insensitive' } } } },
+                    { category: { is: { name: { contains: search, mode: 'insensitive' } } } },
                 ];
             }
             const [products, total] = await Promise.all([

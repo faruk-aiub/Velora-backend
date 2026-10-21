@@ -3,7 +3,7 @@ import { CreateProductDto, UpdateProductDto, CreateVariantDto, UpdateVariantDto,
 export declare class ProductsController {
     private readonly productsService;
     constructor(productsService: ProductsService);
-    findAll(page?: number, limit?: number, categoryId?: string, brandId?: string, minPrice?: number, maxPrice?: number, sort?: string, q?: string): Promise<import("../../common/utils/pagination.util").PaginatedResponse<any>>;
+    findAll(page?: number, limit?: number, categoryId?: string, brandId?: string, minPrice?: number, maxPrice?: number, sort?: string, q?: string, search?: string): Promise<import("../../common/utils/pagination.util").PaginatedResponse<any>>;
     findOne(slug: string): Promise<{
         data: {
             id: string;
@@ -39,7 +39,7 @@ export declare class ProductsController {
             }[];
         };
     }>;
-    adminFindAll(page?: number, limit?: number, categoryId?: string, brandId?: string, q?: string): Promise<import("../../common/utils/pagination.util").PaginatedResponse<any>>;
+    adminFindAll(page?: number, limit?: number, categoryId?: string, brandId?: string, q?: string, search?: string): Promise<import("../../common/utils/pagination.util").PaginatedResponse<any>>;
     adminFindOne(id: string): Promise<{
         data: {
             id: string;
