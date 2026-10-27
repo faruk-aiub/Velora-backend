@@ -4,7 +4,7 @@ import { InventoryService } from './inventory.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { UpdateStockDto } from './dto/inventory.dto';
+import { UpdateStockDto, SetStockDto } from './dto/inventory.dto';
 
 @ApiTags('Inventory')
 @ApiBearerAuth()
@@ -28,9 +28,15 @@ export class InventoryController {
   ) {
     return this.inventoryService.getAllInventory(
       page ? Number(page) : 1,
-      limit ? Number(limit) : 10,
+      limit ? Number(limit) : 10000,
       q
     );
+  }
+
+  @Post(':variantId/set')
+  async setStock(@Param('variantId') variantId: string, @Body() dto: SetStockDto) {
+    const inventory = await this.inventoryService.updateStock(variantId, dto.quantity);
+    return { message: 'Stock updated successfully', data: inventory };
   }
 
   @Post(':variantId/increment')

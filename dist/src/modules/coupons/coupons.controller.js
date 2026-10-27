@@ -34,8 +34,12 @@ let CouponsController = class CouponsController {
         const coupon = await this.couponsService.create(dto);
         return { message: 'Coupon created successfully', data: coupon };
     }
+    async updateCoupon(id, dto) {
+        const coupon = await this.couponsService.update(id, dto);
+        return { message: 'Coupon updated successfully', data: coupon };
+    }
     async getAllCouponsAdmin(page, limit) {
-        return this.couponsService.findAll(page, limit);
+        return this.couponsService.findAll(page, limit ? Number(limit) : 10000);
     }
     async deleteCoupon(id) {
         await this.couponsService.delete(id);
@@ -64,6 +68,18 @@ __decorate([
     __metadata("design:paramtypes", [coupons_dto_1.CreateCouponDto]),
     __metadata("design:returntype", Promise)
 ], CouponsController.prototype, "createCoupon", null);
+__decorate([
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.Put)('admin/coupons/:id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], CouponsController.prototype, "updateCoupon", null);
 __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Get)('admin/coupons'),

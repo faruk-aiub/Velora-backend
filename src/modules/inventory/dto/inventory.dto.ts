@@ -6,3 +6,10 @@ export class UpdateStockDto {
   @Min(1)
   amount: number;
 }
+
+export class SetStockDto {
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(0)
+  quantity: number;
+}

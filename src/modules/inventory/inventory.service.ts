@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { Prisma } from '@prisma/client';
+import { createPaginationResponse } from '../../common/utils/pagination.util';
 
 @Injectable()
 export class InventoryService {
@@ -115,7 +116,16 @@ export class InventoryService {
     `;
   }
 
-  async getAllInventory(page: number = 1, limit: number = 10, search?: string) {
+  async updateStock(variantId: string, quantity: number) {
+    if (quantity < 0) throw new BadRequestException('Quantity cannot be negative');
+
+    return this.prisma.inventory.update({
+      where: { product_variant_id: variantId },
+      data: { quantity }
+    });
+  }
+
+  async getAllInventory(page: number = 1, limit: number = 10000, search?: string) {
     const skip = (page - 1) * limit;
     
     let searchCondition = Prisma.sql``;
@@ -124,7 +134,17 @@ export class InventoryService {
     }
 
     const data = await this.prisma.$queryRaw`
-      SELECT i.product_variant_id, i.quantity, i.reserved_quantity, (i.quantity - i.reserved_quantity) AS available_quantity, p.title as product_title, pv.sku
+      SELECT 
+        i.product_variant_id, 
+        i.quantity, 
+        i.reserved_quantity, 
+        (i.quantity - i.reserved_quantity) AS available_quantity, 
+        p.id as product_id,
+        p.title as product_title, 
+        pv.sku,
+        pv.price::float as price,
+        (SELECT url FROM "ProductImage" WHERE product_id = p.id ORDER BY sort_order ASC LIMIT 1) AS image_url,
+        (SELECT name FROM "Category" WHERE id = p.category_id) AS category_name
       FROM "Inventory" i
       JOIN "ProductVariant" pv ON i.product_variant_id = pv.id
       JOIN "Product" p ON pv.product_id = p.id
@@ -145,11 +165,7 @@ export class InventoryService {
       ${searchCondition}
     `;
 
-    return {
-      data,
-      total: totalRes[0]?.total || 0,
-      page,
-      limit,
-    };
+    const total = totalRes[0]?.total || 0;
+    return createPaginationResponse(data as any[], total, page, limit);
   }
 }

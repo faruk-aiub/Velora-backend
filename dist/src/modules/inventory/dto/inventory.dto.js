@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateStockDto = void 0;
+exports.SetStockDto = exports.UpdateStockDto = void 0;
 const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class UpdateStockDto {
@@ -25,4 +25,17 @@ __decorate([
     (0, class_validator_1.Min)(1),
     __metadata("design:type", Number)
 ], UpdateStockDto.prototype, "amount", void 0);
+class SetStockDto {
+    quantity;
+    static _OPENAPI_METADATA_FACTORY() {
+        return { quantity: { required: true, type: () => Number, minimum: 0 } };
+    }
+}
+exports.SetStockDto = SetStockDto;
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    __metadata("design:type", Number)
+], SetStockDto.prototype, "quantity", void 0);
 //# sourceMappingURL=inventory.dto.js.map

@@ -74,13 +74,15 @@ export class ProductsService implements OnModuleInit {
     search?: string,
     isAdmin: boolean = false
   ): Promise<PaginatedResponse<any>> {
-    const { skip, take } = getPaginationParams(page, limit);
+    const effectiveMaxLimit = isAdmin ? 10000 : 50;
+    const { skip, take } = getPaginationParams(page, limit, effectiveMaxLimit);
     
     // Create deterministic cache key
-    const cacheKey = `cache:products:list:cat_${categoryId || 'all'}:br_${brandId || 'all'}:min_${minPrice || 0}:max_${maxPrice || 'inf'}:s_${sort || 'default'}:q_${search || 'none'}:p_${page}:l_${limit}:admin_${isAdmin}`;
+    const cacheKey = `cache:products:list:cat_${categoryId || 'all'}:br_${brandId || 'all'}:min_${minPrice || 0}:max_${maxPrice || 'inf'}:s_${sort || 'default'}:q_${search || 'none'}:p_${page}:l_${take}:admin_${isAdmin}`;
     
-    // Cache for 1 hour with automatic invalidation on updates
-    return this.redis.getOrSet(cacheKey, 3600, async () => {
+    // Cache for 1 hour for public clients, but 15 seconds for admin to ensure freshness
+    const cacheTtl = isAdmin ? 15 : 3600;
+    return this.redis.getOrSet(cacheKey, cacheTtl, async () => {
       let sortField = 'created_at';
       let sortOrder = 'desc';
 
@@ -140,6 +142,7 @@ export class ProductsService implements OnModuleInit {
         this.prisma.product.findMany({
           where: whereClause,
           include: {
+            category: { select: { id: true, name: true, slug: true } },
             variants: {
               select: { id: true, price: true, compare_price: true },
             },
@@ -152,12 +155,12 @@ export class ProductsService implements OnModuleInit {
           },
           orderBy: { [sortField]: sortOrder },
           skip,
-          take: limit,
+          take,
         }),
         this.prisma.product.count({ where: whereClause }),
       ]);
       
-      return createPaginationResponse(products, total, page, limit);
+      return createPaginationResponse(products, total, page, take);
     });
   }
 

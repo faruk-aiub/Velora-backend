@@ -33,8 +33,24 @@ let CouponsService = class CouponsService {
             }
         });
     }
+    async update(id, dto) {
+        const coupon = await this.prisma.coupon.findUnique({ where: { id } });
+        if (!coupon)
+            throw new common_1.NotFoundException('Coupon not found');
+        return this.prisma.coupon.update({
+            where: { id },
+            data: {
+                ...(dto.code ? { code: dto.code.toUpperCase() } : {}),
+                ...(dto.discount_type ? { discount_type: dto.discount_type } : {}),
+                ...(dto.discount_value !== undefined ? { discount_value: dto.discount_value } : {}),
+                ...(dto.min_order_value !== undefined ? { min_order_value: dto.min_order_value } : {}),
+                ...(dto.usage_limit !== undefined ? { usage_limit: dto.usage_limit } : {}),
+                ...(dto.expires_at !== undefined ? { expires_at: dto.expires_at ? new Date(dto.expires_at) : null } : {}),
+            }
+        });
+    }
     async findAll(page, limit) {
-        const { skip, take, page: currentPage, limit: currentLimit } = (0, pagination_util_1.getPaginationParams)(page, limit);
+        const { skip, take, page: currentPage, limit: currentLimit } = (0, pagination_util_1.getPaginationParams)(page, limit, 10000);
         const [coupons, total] = await this.prisma.$transaction([
             this.prisma.coupon.findMany({ skip, take, orderBy: { created_at: 'desc' } }),
             this.prisma.coupon.count()

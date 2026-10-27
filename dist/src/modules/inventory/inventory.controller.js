@@ -31,7 +31,11 @@ let InventoryController = class InventoryController {
         return { data };
     }
     async getAllInventory(page, limit, q) {
-        return this.inventoryService.getAllInventory(page ? Number(page) : 1, limit ? Number(limit) : 10, q);
+        return this.inventoryService.getAllInventory(page ? Number(page) : 1, limit ? Number(limit) : 10000, q);
+    }
+    async setStock(variantId, dto) {
+        const inventory = await this.inventoryService.updateStock(variantId, dto.quantity);
+        return { message: 'Stock updated successfully', data: inventory };
     }
     async incrementStock(variantId, dto) {
         const inventory = await this.inventoryService.incrementStock(variantId, dto.amount);
@@ -65,6 +69,15 @@ __decorate([
     __metadata("design:paramtypes", [Number, Number, String]),
     __metadata("design:returntype", Promise)
 ], InventoryController.prototype, "getAllInventory", null);
+__decorate([
+    (0, common_1.Post)(':variantId/set'),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, common_1.Param)('variantId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, inventory_dto_1.SetStockDto]),
+    __metadata("design:returntype", Promise)
+], InventoryController.prototype, "setStock", null);
 __decorate([
     (0, common_1.Post)(':variantId/increment'),
     openapi.ApiResponse({ status: 201 }),

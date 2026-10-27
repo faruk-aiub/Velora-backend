@@ -4,44 +4,46 @@ export declare class InventoryService {
     constructor(prisma: PrismaService);
     incrementStock(variantId: string, amount: number): Promise<{
         id: string;
-        updated_at: Date;
+        product_variant_id: string;
         quantity: number;
         reserved_quantity: number;
-        product_variant_id: string;
+        updated_at: Date;
     }>;
     decrementStock(variantId: string, amount: number): Promise<{
         id: string;
-        updated_at: Date;
+        product_variant_id: string;
         quantity: number;
         reserved_quantity: number;
-        product_variant_id: string;
+        updated_at: Date;
     }>;
     reserveStock(variantId: string, amount: number): Promise<{
         id: string;
-        updated_at: Date;
+        product_variant_id: string;
         quantity: number;
         reserved_quantity: number;
-        product_variant_id: string;
+        updated_at: Date;
     }>;
     releaseReservedStock(variantId: string, amount: number): Promise<{
         id: string;
-        updated_at: Date;
+        product_variant_id: string;
         quantity: number;
         reserved_quantity: number;
-        product_variant_id: string;
+        updated_at: Date;
     }>;
     commitStock(variantId: string, amount: number): Promise<{
         id: string;
-        updated_at: Date;
+        product_variant_id: string;
         quantity: number;
         reserved_quantity: number;
-        product_variant_id: string;
+        updated_at: Date;
     }>;
     getLowStockVariants(threshold?: number): Promise<unknown>;
-    getAllInventory(page?: number, limit?: number, search?: string): Promise<{
-        data: unknown;
-        total: any;
-        page: number;
-        limit: number;
+    updateStock(variantId: string, quantity: number): Promise<{
+        id: string;
+        product_variant_id: string;
+        quantity: number;
+        reserved_quantity: number;
+        updated_at: Date;
     }>;
+    getAllInventory(page?: number, limit?: number, search?: string): Promise<import("../../common/utils/pagination.util").PaginatedResponse<any>>;
 }

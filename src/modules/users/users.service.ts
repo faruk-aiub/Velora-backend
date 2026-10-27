@@ -36,7 +36,7 @@ export class UsersService {
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
-    return this.prisma.userProfile.upsert({
+    await this.prisma.userProfile.upsert({
       where: { user_id: userId },
       update: dto,
       create: {
@@ -47,6 +47,8 @@ export class UsersService {
         avatar_url: dto.avatar_url,
       }
     });
+
+    return this.getProfile(userId);
   }
 
   async changePassword(userId: string, dto: ChangePasswordDto) {

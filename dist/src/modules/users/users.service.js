@@ -76,7 +76,7 @@ let UsersService = class UsersService {
         };
     }
     async updateProfile(userId, dto) {
-        return this.prisma.userProfile.upsert({
+        await this.prisma.userProfile.upsert({
             where: { user_id: userId },
             update: dto,
             create: {
@@ -87,6 +87,7 @@ let UsersService = class UsersService {
                 avatar_url: dto.avatar_url,
             }
         });
+        return this.getProfile(userId);
     }
     async changePassword(userId, dto) {
         const user = await this.prisma.user.findUnique({ where: { id: userId } });

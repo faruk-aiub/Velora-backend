@@ -59,7 +59,7 @@ export class ProductsController {
     const searchTerm = q || search;
     return this.productsService.findAll(
       page ? Number(page) : 1,
-      limit ? Number(limit) : 10,
+      limit !== undefined ? Number(limit) : 10000,
       categoryId,
       brandId,
       undefined,

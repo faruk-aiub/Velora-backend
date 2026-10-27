@@ -1,5 +1,5 @@
 import {  ApiTags , ApiBearerAuth } from '@nestjs/swagger';
-import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { CouponsService } from './coupons.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -31,11 +31,20 @@ export class CouponsController {
   }
 
   @ApiBearerAuth()
+  @Put('admin/coupons/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async updateCoupon(@Param('id') id: string, @Body() dto: Partial<CreateCouponDto>) {
+    const coupon = await this.couponsService.update(id, dto);
+    return { message: 'Coupon updated successfully', data: coupon };
+  }
+
+  @ApiBearerAuth()
   @Get('admin/coupons')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   async getAllCouponsAdmin(@Query('page') page: number, @Query('limit') limit: number) {
-    return this.couponsService.findAll(page, limit);
+    return this.couponsService.findAll(page, limit ? Number(limit) : 10000);
   }
 
   @ApiBearerAuth()

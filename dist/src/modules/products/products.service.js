@@ -70,9 +70,11 @@ let ProductsService = ProductsService_1 = class ProductsService {
         this.warmProductDetailsCache().catch(() => { });
     }
     async findAll(page = 1, limit = 10, categoryId, brandId, minPrice, maxPrice, sort, search, isAdmin = false) {
-        const { skip, take } = (0, pagination_util_1.getPaginationParams)(page, limit);
-        const cacheKey = `cache:products:list:cat_${categoryId || 'all'}:br_${brandId || 'all'}:min_${minPrice || 0}:max_${maxPrice || 'inf'}:s_${sort || 'default'}:q_${search || 'none'}:p_${page}:l_${limit}:admin_${isAdmin}`;
-        return this.redis.getOrSet(cacheKey, 3600, async () => {
+        const effectiveMaxLimit = isAdmin ? 10000 : 50;
+        const { skip, take } = (0, pagination_util_1.getPaginationParams)(page, limit, effectiveMaxLimit);
+        const cacheKey = `cache:products:list:cat_${categoryId || 'all'}:br_${brandId || 'all'}:min_${minPrice || 0}:max_${maxPrice || 'inf'}:s_${sort || 'default'}:q_${search || 'none'}:p_${page}:l_${take}:admin_${isAdmin}`;
+        const cacheTtl = isAdmin ? 15 : 3600;
+        return this.redis.getOrSet(cacheKey, cacheTtl, async () => {
             let sortField = 'created_at';
             let sortOrder = 'desc';
             if (sort) {
@@ -126,6 +128,7 @@ let ProductsService = ProductsService_1 = class ProductsService {
                 this.prisma.product.findMany({
                     where: whereClause,
                     include: {
+                        category: { select: { id: true, name: true, slug: true } },
                         variants: {
                             select: { id: true, price: true, compare_price: true },
                         },
@@ -138,11 +141,11 @@ let ProductsService = ProductsService_1 = class ProductsService {
                     },
                     orderBy: { [sortField]: sortOrder },
                     skip,
-                    take: limit,
+                    take,
                 }),
                 this.prisma.product.count({ where: whereClause }),
             ]);
-            return (0, pagination_util_1.createPaginationResponse)(products, total, page, limit);
+            return (0, pagination_util_1.createPaginationResponse)(products, total, page, take);
         });
     }
     async findOneBySlug(slug) {

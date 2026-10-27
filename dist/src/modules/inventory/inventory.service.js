@@ -13,6 +13,7 @@ exports.InventoryService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
 const client_1 = require("@prisma/client");
+const pagination_util_1 = require("../../common/utils/pagination.util");
 let InventoryService = class InventoryService {
     prisma;
     constructor(prisma) {
@@ -97,14 +98,32 @@ let InventoryService = class InventoryService {
       AND p.deleted_at IS NULL
     `;
     }
-    async getAllInventory(page = 1, limit = 10, search) {
+    async updateStock(variantId, quantity) {
+        if (quantity < 0)
+            throw new common_1.BadRequestException('Quantity cannot be negative');
+        return this.prisma.inventory.update({
+            where: { product_variant_id: variantId },
+            data: { quantity }
+        });
+    }
+    async getAllInventory(page = 1, limit = 10000, search) {
         const skip = (page - 1) * limit;
         let searchCondition = client_1.Prisma.sql ``;
         if (search) {
             searchCondition = client_1.Prisma.sql `AND (p.title ILIKE ${'%' + search + '%'} OR pv.sku ILIKE ${'%' + search + '%'})`;
         }
         const data = await this.prisma.$queryRaw `
-      SELECT i.product_variant_id, i.quantity, i.reserved_quantity, (i.quantity - i.reserved_quantity) AS available_quantity, p.title as product_title, pv.sku
+      SELECT 
+        i.product_variant_id, 
+        i.quantity, 
+        i.reserved_quantity, 
+        (i.quantity - i.reserved_quantity) AS available_quantity, 
+        p.id as product_id,
+        p.title as product_title, 
+        pv.sku,
+        pv.price::float as price,
+        (SELECT url FROM "ProductImage" WHERE product_id = p.id ORDER BY sort_order ASC LIMIT 1) AS image_url,
+        (SELECT name FROM "Category" WHERE id = p.category_id) AS category_name
       FROM "Inventory" i
       JOIN "ProductVariant" pv ON i.product_variant_id = pv.id
       JOIN "Product" p ON pv.product_id = p.id
@@ -123,12 +142,8 @@ let InventoryService = class InventoryService {
       AND p.deleted_at IS NULL
       ${searchCondition}
     `;
-        return {
-            data,
-            total: totalRes[0]?.total || 0,
-            page,
-            limit,
-        };
+        const total = totalRes[0]?.total || 0;
+        return (0, pagination_util_1.createPaginationResponse)(data, total, page, limit);
     }
 };
 exports.InventoryService = InventoryService;

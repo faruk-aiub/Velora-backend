@@ -36,7 +36,7 @@ let ProductsController = class ProductsController {
     }
     async adminFindAll(page, limit, categoryId, brandId, q, search) {
         const searchTerm = q || search;
-        return this.productsService.findAll(page ? Number(page) : 1, limit ? Number(limit) : 10, categoryId, brandId, undefined, undefined, undefined, searchTerm, true);
+        return this.productsService.findAll(page ? Number(page) : 1, limit !== undefined ? Number(limit) : 10000, categoryId, brandId, undefined, undefined, undefined, searchTerm, true);
     }
     async adminFindOne(id) {
         const product = await this.productsService.findOneByIdForAdmin(id);

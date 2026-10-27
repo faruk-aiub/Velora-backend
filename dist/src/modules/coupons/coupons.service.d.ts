@@ -6,15 +6,27 @@ export declare class CouponsService {
     constructor(prisma: PrismaService);
     create(dto: CreateCouponDto): Promise<{
         id: string;
-        created_at: Date;
-        updated_at: Date;
         code: string;
         discount_type: import("@prisma/client").$Enums.DiscountType;
         discount_value: import("@prisma/client-runtime-utils").Decimal;
         min_order_value: import("@prisma/client-runtime-utils").Decimal | null;
         usage_limit: number | null;
-        expires_at: Date | null;
         used_count: number;
+        expires_at: Date | null;
+        created_at: Date;
+        updated_at: Date;
+    }>;
+    update(id: string, dto: Partial<CreateCouponDto>): Promise<{
+        id: string;
+        code: string;
+        discount_type: import("@prisma/client").$Enums.DiscountType;
+        discount_value: import("@prisma/client-runtime-utils").Decimal;
+        min_order_value: import("@prisma/client-runtime-utils").Decimal | null;
+        usage_limit: number | null;
+        used_count: number;
+        expires_at: Date | null;
+        created_at: Date;
+        updated_at: Date;
     }>;
     findAll(page?: number, limit?: number): Promise<PaginatedResponse<any>>;
     delete(id: string): Promise<boolean>;
