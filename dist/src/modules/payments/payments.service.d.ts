@@ -21,24 +21,24 @@ export declare class PaymentsService {
     }>;
     verifyPayment(dto: VerifyPaymentDto): Promise<{
         id: string;
-        updated_at: Date;
-        status: import("@prisma/client").$Enums.PaymentStatus;
         created_at: Date;
+        updated_at: Date;
+        amount: import("@prisma/client-runtime-utils").Decimal;
+        status: import("@prisma/client").$Enums.PaymentStatus;
         order_id: string;
         provider: import("@prisma/client").$Enums.PaymentProvider;
         transaction_id: string | null;
-        amount: import("@prisma/client-runtime-utils").Decimal;
         gateway_response: import("@prisma/client/runtime/client").JsonValue | null;
     }>;
     getPaymentDetails(orderId: string, userId: string): Promise<{
         id: string;
-        updated_at: Date;
-        status: import("@prisma/client").$Enums.PaymentStatus;
         created_at: Date;
+        updated_at: Date;
+        amount: import("@prisma/client-runtime-utils").Decimal;
+        status: import("@prisma/client").$Enums.PaymentStatus;
         order_id: string;
         provider: import("@prisma/client").$Enums.PaymentProvider;
         transaction_id: string | null;
-        amount: import("@prisma/client-runtime-utils").Decimal;
         gateway_response: import("@prisma/client/runtime/client").JsonValue | null;
     }[]>;
     findAllAdmin(page?: number, limit?: number): Promise<PaginatedResponse<any>>;

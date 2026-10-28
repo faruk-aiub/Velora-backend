@@ -11,30 +11,30 @@ export declare class InventoryController {
         message: string;
         data: {
             id: string;
-            product_variant_id: string;
+            updated_at: Date;
             quantity: number;
             reserved_quantity: number;
-            updated_at: Date;
+            product_variant_id: string;
         };
     }>;
     incrementStock(variantId: string, dto: UpdateStockDto): Promise<{
         message: string;
         data: {
             id: string;
-            product_variant_id: string;
+            updated_at: Date;
             quantity: number;
             reserved_quantity: number;
-            updated_at: Date;
+            product_variant_id: string;
         };
     }>;
     decrementStock(variantId: string, dto: UpdateStockDto): Promise<{
         message: string;
         data: {
             id: string;
-            product_variant_id: string;
+            updated_at: Date;
             quantity: number;
             reserved_quantity: number;
-            updated_at: Date;
+            product_variant_id: string;
         };
     }>;
 }

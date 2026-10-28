@@ -4,46 +4,46 @@ export declare class InventoryService {
     constructor(prisma: PrismaService);
     incrementStock(variantId: string, amount: number): Promise<{
         id: string;
-        product_variant_id: string;
+        updated_at: Date;
         quantity: number;
         reserved_quantity: number;
-        updated_at: Date;
+        product_variant_id: string;
     }>;
     decrementStock(variantId: string, amount: number): Promise<{
         id: string;
-        product_variant_id: string;
+        updated_at: Date;
         quantity: number;
         reserved_quantity: number;
-        updated_at: Date;
+        product_variant_id: string;
     }>;
     reserveStock(variantId: string, amount: number): Promise<{
         id: string;
-        product_variant_id: string;
+        updated_at: Date;
         quantity: number;
         reserved_quantity: number;
-        updated_at: Date;
+        product_variant_id: string;
     }>;
     releaseReservedStock(variantId: string, amount: number): Promise<{
         id: string;
-        product_variant_id: string;
+        updated_at: Date;
         quantity: number;
         reserved_quantity: number;
-        updated_at: Date;
+        product_variant_id: string;
     }>;
     commitStock(variantId: string, amount: number): Promise<{
         id: string;
-        product_variant_id: string;
+        updated_at: Date;
         quantity: number;
         reserved_quantity: number;
-        updated_at: Date;
+        product_variant_id: string;
     }>;
     getLowStockVariants(threshold?: number): Promise<unknown>;
     updateStock(variantId: string, quantity: number): Promise<{
         id: string;
-        product_variant_id: string;
+        updated_at: Date;
         quantity: number;
         reserved_quantity: number;
-        updated_at: Date;
+        product_variant_id: string;
     }>;
     getAllInventory(page?: number, limit?: number, search?: string): Promise<import("../../common/utils/pagination.util").PaginatedResponse<any>>;
 }

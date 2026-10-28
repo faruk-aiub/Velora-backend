@@ -8,18 +8,18 @@ export declare class ProductsController {
         data: {
             id: string;
             slug: string;
-            title: string;
-            description: string | null;
-            discount_percent: number;
+            category: {
+                id: string;
+                name: string;
+                slug: string;
+            };
             brand: {
                 id: string;
                 name: string;
             } | null;
-            category: {
-                id: string;
-                slug: string;
-                name: string;
-            };
+            title: string;
+            description: string | null;
+            discount_percent: number;
             variants: {
                 id: string;
                 sku: string;
@@ -32,8 +32,8 @@ export declare class ProductsController {
                 } | null;
             }[];
             images: {
-                id: string;
                 url: string;
+                id: string;
                 alt_text: string | null;
                 sort_order: number;
             }[];
@@ -44,19 +44,19 @@ export declare class ProductsController {
         data: {
             id: string;
             slug: string;
-            title: string;
-            description: string | null;
-            base_price: number;
-            discount_percent: number;
+            category: {
+                id: string;
+                name: string;
+                slug: string;
+            };
             brand: {
                 id: string;
                 name: string;
             } | null;
-            category: {
-                id: string;
-                slug: string;
-                name: string;
-            };
+            title: string;
+            description: string | null;
+            base_price: number;
+            discount_percent: number;
             variants: {
                 id: string;
                 sku: string;
@@ -69,8 +69,8 @@ export declare class ProductsController {
                 } | null;
             }[];
             images: {
-                id: string;
                 url: string;
+                id: string;
                 alt_text: string | null;
                 sort_order: number;
             }[];
@@ -80,34 +80,34 @@ export declare class ProductsController {
         message: string;
         data: {
             id: string;
-            slug: string;
-            title: string;
-            description: string | null;
-            brand_id: string | null;
-            category_id: string;
-            base_price: number;
-            discount_percent: number;
             is_active: boolean;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
+            slug: string;
+            title: string;
+            description: string | null;
+            base_price: number;
+            discount_percent: number;
+            brand_id: string | null;
+            category_id: string;
         };
     }>;
     update(id: string, updateDto: UpdateProductDto): Promise<{
         message: string;
         data: {
             id: string;
-            slug: string;
-            title: string;
-            description: string | null;
-            brand_id: string | null;
-            category_id: string;
-            base_price: number;
-            discount_percent: number;
             is_active: boolean;
             created_at: Date;
             updated_at: Date;
             deleted_at: Date | null;
+            slug: string;
+            title: string;
+            description: string | null;
+            base_price: number;
+            discount_percent: number;
+            brand_id: string | null;
+            category_id: string;
         };
     }>;
     delete(id: string): Promise<{
@@ -119,19 +119,19 @@ export declare class ProductsController {
             inventory: {
                 id: string;
                 updated_at: Date;
-                product_variant_id: string;
                 quantity: number;
                 reserved_quantity: number;
+                product_variant_id: string;
             } | null;
         } & {
             id: string;
             created_at: Date;
             updated_at: Date;
-            product_id: string;
             sku: string;
             price: import("@prisma/client-runtime-utils").Decimal;
             compare_price: import("@prisma/client-runtime-utils").Decimal | null;
             attributes: import("@prisma/client/runtime/client").JsonValue | null;
+            product_id: string;
         };
     }>;
     updateVariant(id: string, variantDto: UpdateVariantDto): Promise<{
@@ -140,11 +140,11 @@ export declare class ProductsController {
             id: string;
             created_at: Date;
             updated_at: Date;
-            product_id: string;
             sku: string;
             price: import("@prisma/client-runtime-utils").Decimal;
             compare_price: import("@prisma/client-runtime-utils").Decimal | null;
             attributes: import("@prisma/client/runtime/client").JsonValue | null;
+            product_id: string;
         };
     }>;
     removeVariant(id: string): Promise<{
@@ -153,12 +153,12 @@ export declare class ProductsController {
     addImage(id: string, imageDto: CreateImageDto): Promise<{
         message: string;
         data: {
+            url: string;
             id: string;
             created_at: Date;
-            product_id: string;
-            url: string;
             alt_text: string | null;
             sort_order: number;
+            product_id: string;
         };
     }>;
     removeImage(id: string): Promise<{
