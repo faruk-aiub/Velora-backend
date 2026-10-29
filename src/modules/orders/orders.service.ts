@@ -17,7 +17,7 @@ export class OrdersService {
   async findAll(userId: string, page?: number, limit?: number): Promise<PaginatedResponse<any>> {
     const { skip, take, page: currentPage, limit: currentLimit } = getPaginationParams(page, limit);
 
-    const [orders, total] = await this.prisma.$transaction([
+    const [orders, total] = await Promise.all([
       this.prisma.order.findMany({
         where: { user_id: userId },
         skip,
@@ -203,7 +203,7 @@ export class OrdersService {
   async findAllAdmin(page?: number, limit?: number): Promise<PaginatedResponse<any>> {
     const { skip, take, page: currentPage, limit: currentLimit } = getPaginationParams(page, limit);
 
-    const [orders, total] = await this.prisma.$transaction([
+    const [orders, total] = await Promise.all([
       this.prisma.order.findMany({
         skip,
         take,

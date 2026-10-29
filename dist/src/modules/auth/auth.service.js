@@ -62,7 +62,13 @@ let AuthService = AuthService_1 = class AuthService {
             where: { email: registerDto.email },
         });
         if (existingUser) {
-            throw new common_1.BadRequestException('Email is already in use');
+            if (existingUser.deleted_at) {
+                await this.prisma.review.deleteMany({ where: { user_id: existingUser.id } }).catch(() => null);
+                await this.prisma.user.delete({ where: { id: existingUser.id } }).catch(() => null);
+            }
+            else {
+                throw new common_1.BadRequestException('Email is already in use');
+            }
         }
         const passwordHash = await argon2.hash(registerDto.password, { type: argon2.argon2id, memoryCost: 4096, timeCost: 2 });
         const user = await this.prisma.user.create({

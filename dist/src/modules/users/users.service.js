@@ -196,12 +196,30 @@ let UsersService = class UsersService {
         const user = await this.prisma.user.findUnique({ where: { id } });
         if (!user)
             throw new common_1.NotFoundException('User not found');
-        return this.prisma.user.update({
+        await this.prisma.review.deleteMany({ where: { user_id: id } });
+        const userAddresses = await this.prisma.userAddress.findMany({
+            where: { user_id: id },
+            select: { id: true },
+        });
+        const addressIds = userAddresses.map((a) => a.id);
+        const orders = await this.prisma.order.findMany({
+            where: {
+                OR: [
+                    { user_id: id },
+                    ...(addressIds.length > 0 ? [{ shipping_address_id: { in: addressIds } }] : []),
+                ],
+            },
+            select: { id: true },
+        });
+        const orderIds = orders.map((o) => o.id);
+        if (orderIds.length > 0) {
+            await this.prisma.orderItem.deleteMany({ where: { order_id: { in: orderIds } } });
+            await this.prisma.orderStatusHistory.deleteMany({ where: { order_id: { in: orderIds } } });
+            await this.prisma.payment.deleteMany({ where: { order_id: { in: orderIds } } });
+            await this.prisma.order.deleteMany({ where: { id: { in: orderIds } } });
+        }
+        return this.prisma.user.delete({
             where: { id },
-            data: {
-                deleted_at: new Date(),
-                is_active: false
-            }
         });
     }
 };

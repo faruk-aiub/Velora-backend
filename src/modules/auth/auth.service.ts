@@ -20,7 +20,13 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new BadRequestException('Email is already in use');
+      if (existingUser.deleted_at) {
+        // Fallback: If legacy soft-deleted user exists, clean up and allow re-registration
+        await this.prisma.review.deleteMany({ where: { user_id: existingUser.id } }).catch(() => null);
+        await this.prisma.user.delete({ where: { id: existingUser.id } }).catch(() => null);
+      } else {
+        throw new BadRequestException('Email is already in use');
+      }
     }
 
     const passwordHash = await argon2.hash(registerDto.password, { type: argon2.argon2id, memoryCost: 4096, timeCost: 2 });

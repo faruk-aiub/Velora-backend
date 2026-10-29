@@ -179,13 +179,38 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
 
-    // Soft delete implementation
-    return this.prisma.user.update({
+    // 1. Delete reviews written by this user
+    await this.prisma.review.deleteMany({ where: { user_id: id } });
+
+    // 2. Find all user addresses to satisfy foreign key constraints with orders
+    const userAddresses = await this.prisma.userAddress.findMany({
+      where: { user_id: id },
+      select: { id: true },
+    });
+    const addressIds = userAddresses.map((a) => a.id);
+
+    // 3. Find and delete orders referencing this user or their shipping addresses
+    const orders = await this.prisma.order.findMany({
+      where: {
+        OR: [
+          { user_id: id },
+          ...(addressIds.length > 0 ? [{ shipping_address_id: { in: addressIds } }] : []),
+        ],
+      },
+      select: { id: true },
+    });
+    const orderIds = orders.map((o) => o.id);
+
+    if (orderIds.length > 0) {
+      await this.prisma.orderItem.deleteMany({ where: { order_id: { in: orderIds } } });
+      await this.prisma.orderStatusHistory.deleteMany({ where: { order_id: { in: orderIds } } });
+      await this.prisma.payment.deleteMany({ where: { order_id: { in: orderIds } } });
+      await this.prisma.order.deleteMany({ where: { id: { in: orderIds } } });
+    }
+
+    // 4. Hard delete the user from database
+    return this.prisma.user.delete({
       where: { id },
-      data: { 
-        deleted_at: new Date(),
-        is_active: false
-      }
     });
   }
 }

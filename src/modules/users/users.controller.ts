@@ -96,6 +96,6 @@ export class UsersController {
   @Roles('ADMIN')
   async deleteUser(@Param('id') id: string) {
     await this.usersService.deleteUser(id);
-    return { message: 'User deleted (soft)' };
+    return { message: 'User deleted successfully' };
   }
 }

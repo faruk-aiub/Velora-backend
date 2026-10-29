@@ -25,7 +25,7 @@ let OrdersService = class OrdersService {
     }
     async findAll(userId, page, limit) {
         const { skip, take, page: currentPage, limit: currentLimit } = (0, pagination_util_1.getPaginationParams)(page, limit);
-        const [orders, total] = await this.prisma.$transaction([
+        const [orders, total] = await Promise.all([
             this.prisma.order.findMany({
                 where: { user_id: userId },
                 skip,
@@ -182,7 +182,7 @@ let OrdersService = class OrdersService {
     }
     async findAllAdmin(page, limit) {
         const { skip, take, page: currentPage, limit: currentLimit } = (0, pagination_util_1.getPaginationParams)(page, limit);
-        const [orders, total] = await this.prisma.$transaction([
+        const [orders, total] = await Promise.all([
             this.prisma.order.findMany({
                 skip,
                 take,

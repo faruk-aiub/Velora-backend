@@ -23,8 +23,8 @@ export declare class PaymentsService {
         id: string;
         created_at: Date;
         updated_at: Date;
-        amount: import("@prisma/client-runtime-utils").Decimal;
         status: import("@prisma/client").$Enums.PaymentStatus;
+        amount: import("@prisma/client-runtime-utils").Decimal;
         order_id: string;
         provider: import("@prisma/client").$Enums.PaymentProvider;
         transaction_id: string | null;
@@ -34,8 +34,8 @@ export declare class PaymentsService {
         id: string;
         created_at: Date;
         updated_at: Date;
-        amount: import("@prisma/client-runtime-utils").Decimal;
         status: import("@prisma/client").$Enums.PaymentStatus;
+        amount: import("@prisma/client-runtime-utils").Decimal;
         order_id: string;
         provider: import("@prisma/client").$Enums.PaymentProvider;
         transaction_id: string | null;

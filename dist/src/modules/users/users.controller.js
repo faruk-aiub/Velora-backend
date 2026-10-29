@@ -69,7 +69,7 @@ let UsersController = class UsersController {
     }
     async deleteUser(id) {
         await this.usersService.deleteUser(id);
-        return { message: 'User deleted (soft)' };
+        return { message: 'User deleted successfully' };
     }
 };
 exports.UsersController = UsersController;
